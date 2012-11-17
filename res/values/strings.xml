@@ -6,5 +6,6 @@
 	<string name="btn_login">Login</string>
 	<string name="hint_username">username</string>
 	<string name="hint_password">password</string>
+	<string name="hint_no_network">Currently not connected!</string>
     
 </resources>
