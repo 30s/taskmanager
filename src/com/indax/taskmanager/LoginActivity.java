@@ -3,11 +3,13 @@ package com.indax.taskmanager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 
 import android.app.Activity;
 import android.os.AsyncTask;
@@ -68,19 +70,30 @@ public class LoginActivity extends Activity implements OnClickListener {
 			if ( params.length != 2 ) {
 				return null;
 			}
+			
 			String username = (String) params[0];
-			String password = (String) params[1];
+			String password = (String) params[1];			
 			Log.d(TAG, username + password);
 			
 			InputStream is = null;
+			OutputStream os = null;
 			int len = 500;
 			try {
-				URL url = new URL("http://192.168.2.92:8000/accounts/login/");
+				String query = String.format("username=%s&password=%s&apikey=%s", 
+					     URLEncoder.encode(username, "utf-8"), 
+					     URLEncoder.encode(password, "utf-8"),
+					     URLEncoder.encode("d09f0e36753b2299c7cfd3d488b701", "utf-8"));				
+				
+				URL url = new URL("http://192.168.2.92:8000/v1/account/login/");
 				HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 				conn.setReadTimeout(10000 /* milliseconds */);
 		        conn.setConnectTimeout(15000 /* milliseconds */);
 		        conn.setRequestMethod("POST");
 		        conn.setDoInput(true);
+		        conn.setDoOutput(true);
+		        os = conn.getOutputStream();
+		        os.write(query.getBytes("utf-8"));
+		        
 		        conn.connect();
 		        int response = conn.getResponseCode();
 		        Log.d(TAG, "The response is: " + response);
