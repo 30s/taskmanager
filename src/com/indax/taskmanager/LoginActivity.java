@@ -11,6 +11,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -100,11 +103,16 @@ public class LoginActivity extends Activity implements OnClickListener {
 		        is = conn.getInputStream();
 		        String contentAsString = readIt(is, len);
 		        Log.d(TAG, contentAsString);
+		        JSONObject json = new JSONObject(contentAsString);
+		        Log.d(TAG, "token: " + json.get("token"));
 		        return contentAsString;
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (JSONException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} finally {
