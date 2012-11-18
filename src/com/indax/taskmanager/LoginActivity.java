@@ -105,6 +105,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 		        Log.d(TAG, contentAsString);
 		        JSONObject json = new JSONObject(contentAsString);
 		        Log.d(TAG, "token: " + json.get("token"));
+		        conn.disconnect();
 		        return contentAsString;
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
