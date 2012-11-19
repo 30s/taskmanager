@@ -33,14 +33,11 @@ import com.indax.taskmanager.utils.Utils;
 public class LoginActivity extends Activity implements OnClickListener {
 
 	private final String TAG = LoginActivity.class.getSimpleName();
-	private Utils m_utils;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-
-		m_utils = new Utils(getBaseContext());
 		
 		if ( Preferences.getToken(getApplicationContext()) != null ) {
 			startActivity(new Intent(getApplicationContext(), TaskActivity.class));
@@ -60,7 +57,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 	@Override
 	public void onClick(View v) {
 		if (v.getId() == R.id.btn_login) {
-			if (!m_utils.isNetworkAvailable()) {
+			if (!Utils.isNetworkAvailable(getBaseContext())) {
 				Toast.makeText(getBaseContext(), R.string.hint_no_network,
 						Toast.LENGTH_SHORT).show();
 				return;
@@ -111,7 +108,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 				int response = conn.getResponseCode();
 				Log.d(TAG, "The response is: " + response);
 				is = conn.getInputStream();
-				String contentAsString = readIt(is, len);
+				String contentAsString = Utils.readIt(is, len);
 				Log.d(TAG, contentAsString);
 				JSONObject json = new JSONObject(contentAsString);				
 				Preferences
@@ -143,22 +140,6 @@ public class LoginActivity extends Activity implements OnClickListener {
 			}
 			return "";
 
-		}
-
-		@Override
-		protected void onPostExecute(Object result) {
-			// TODO Auto-generated method stub
-			super.onPostExecute(result);
-		}
-
-		// Reads an InputStream and converts it to a String.
-		public String readIt(InputStream stream, int len) throws IOException,
-				UnsupportedEncodingException {
-			Reader reader = null;
-			reader = new InputStreamReader(stream, "UTF-8");
-			char[] buffer = new char[len];
-			reader.read(buffer);
-			return new String(buffer);
 		}
 	}
 }
