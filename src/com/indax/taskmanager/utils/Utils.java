@@ -1,5 +1,6 @@
 package com.indax.taskmanager.utils;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,13 +25,15 @@ public class Utils {
 	    return false;
 	}
 	
-	// Reads an InputStream and converts it to a String.
-	public static String readIt(InputStream stream, int len) throws IOException,
+	public static String read(InputStream in) throws IOException,
 			UnsupportedEncodingException {
-		Reader reader = null;
-		reader = new InputStreamReader(stream, "UTF-8");
-		char[] buffer = new char[len];
-		reader.read(buffer);
-		return new String(buffer);
+		StringBuilder sb = new StringBuilder();
+		BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"), 1024);
+		char[] buf = new char[1024];
+		for (int read = r.read(buf); read != -1; read = r.read(buf) ) {
+			sb.append(buf);
+		}
+		in.close();
+		return sb.toString();
 	}	
 }

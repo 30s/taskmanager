@@ -10,6 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Date;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,12 +39,17 @@ public class LoginActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
-		
-		if ( Preferences.getToken(getApplicationContext()) != null ) {
-			startActivity(new Intent(getApplicationContext(), TaskActivity.class));
+
+		Date now = new Date();
+		long expire = Preferences.getExpire(getApplicationContext()) * 1000;
+
+		if (Preferences.getToken(getApplicationContext()) != null && now.getTime() < expire ) {
+			startActivity(new Intent(getApplicationContext(),
+					TaskActivity.class));
+			finish();
 			return;
 		}
-		
+
 		Button btn_login = (Button) findViewById(R.id.btn_login);
 		btn_login.setOnClickListener(this);
 	}
@@ -108,15 +114,20 @@ public class LoginActivity extends Activity implements OnClickListener {
 				int response = conn.getResponseCode();
 				Log.d(TAG, "The response is: " + response);
 				is = conn.getInputStream();
-				String contentAsString = Utils.readIt(is, len);
+				String contentAsString = Utils.read(is);
 				Log.d(TAG, contentAsString);
-				JSONObject json = new JSONObject(contentAsString);				
-				Preferences
-						.setLoginInfo(getApplicationContext(),
-								json.getString("token"),
-								json.getString("refresh_token"),
-								json.getLong("expire"));
-				Log.d(TAG, "token: " + json.get("token"));
+				JSONObject json = new JSONObject(contentAsString);
+				if (json.has("token")) {
+					Preferences.setLoginInfo(getApplicationContext(),
+							username,
+							password,
+							json.getString("token"),
+							json.getString("refresh_token"),
+							json.getLong("expire"));
+					Log.d(TAG, "token: " + json.get("token"));
+				} else {
+					Log.d(TAG, "Login error!");
+				}
 				conn.disconnect();
 				return contentAsString;
 			} catch (MalformedURLException e) {

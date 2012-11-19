@@ -55,7 +55,7 @@ public class TaskActivity extends Activity {
 				int response = conn.getResponseCode();
 				Log.d(TAG, "The response is: " + response);
 				is = conn.getInputStream();
-				String contentAsString = Utils.readIt(is, 1024);
+				String contentAsString = Utils.read(is);
 				Log.d(TAG, contentAsString);
 				JSONObject json = new JSONObject(contentAsString);				
 			} catch (MalformedURLException e) {
