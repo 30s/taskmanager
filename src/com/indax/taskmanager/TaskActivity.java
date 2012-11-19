@@ -48,7 +48,7 @@ public class TaskActivity extends Activity {
 			Task[] tasks = null;
 			try {
 				URL url;
-				url = new URL("http://192.168.1.123:8000/v1/task/?format=json");
+				url = new URL(Preferences.getServer(getApplicationContext()) + "/v1/task/?format=json");
 				HttpURLConnection conn = (HttpURLConnection) url
 						.openConnection();
 				conn.setReadTimeout(10000 /* milliseconds */);

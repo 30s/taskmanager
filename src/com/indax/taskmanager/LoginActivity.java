@@ -99,7 +99,7 @@ public class LoginActivity extends Activity implements OnClickListener {
 								"utf-8"), URLEncoder.encode(
 								"d09f0e36753b2299c7cfd3d488b701", "utf-8"));
 
-				URL url = new URL("http://192.168.1.123:8000/v1/account/login/");
+				URL url = new URL(Preferences.getServer(getApplicationContext()) + "/v1/account/login/");
 				HttpURLConnection conn = (HttpURLConnection) url
 						.openConnection();
 				conn.setReadTimeout(10000 /* milliseconds */);
