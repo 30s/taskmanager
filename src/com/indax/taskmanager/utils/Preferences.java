@@ -8,7 +8,8 @@ import android.preference.PreferenceManager;
 
 public class Preferences {
 	
-	public static boolean DEBUG = false;
+	public static boolean DEBUG = true;
+	public static String SERVER; 
 	
 	public static void setLoginInfo(Context context, String username,
 			String password, String token, String refresh_token, long expire) {
@@ -30,10 +31,16 @@ public class Preferences {
 	}
 	
 	public static String getServer(Context context) {
-		if ( Preferences.DEBUG ) {
-			return context.getString(R.string.debug_server);			
-		} else {
-			return context.getString(R.string.production_server);
+		if ( Preferences.SERVER != null ) {
+			return Preferences.SERVER;
 		}
+		
+		if ( Preferences.DEBUG ) {
+			Preferences.SERVER = context.getString(R.string.debug_server);			
+		} else {
+			Preferences.SERVER = context.getString(R.string.production_server);
+		}
+		
+		return Preferences.SERVER;
 	}
 }

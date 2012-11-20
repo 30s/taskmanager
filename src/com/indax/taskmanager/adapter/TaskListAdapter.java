@@ -1,5 +1,7 @@
 package com.indax.taskmanager.adapter;
 
+import java.util.ArrayList;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,20 +13,20 @@ import com.indax.taskmanager.models.Task;
 
 public class TaskListAdapter extends BaseAdapter {
 
-	private Task[] tasks;
+	private ArrayList<Task> tasks;
 
-	public TaskListAdapter(Task... tasks) {
+	public TaskListAdapter(ArrayList<Task> tasks) {
 		this.tasks = tasks;
 	}
 
 	@Override
 	public int getCount() {
-		return tasks.length;
+		return tasks.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return tasks[position];
+		return tasks.get(position);
 	}
 
 	@Override
@@ -37,7 +39,7 @@ public class TaskListAdapter extends BaseAdapter {
 		TextView view = (convertView instanceof TextView) ? (TextView) convertView
 				: (TextView) LayoutInflater.from(parent.getContext()).inflate(
 						R.layout.task_item, null);
-		view.setText(tasks[position].getName());
+		view.setText(tasks.get(position).getName());
 		return view;
 	}
 

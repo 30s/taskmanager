@@ -102,8 +102,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 				URL url = new URL(Preferences.getServer(getApplicationContext()) + "/v1/account/login/");
 				HttpURLConnection conn = (HttpURLConnection) url
 						.openConnection();
-				conn.setReadTimeout(10000 /* milliseconds */);
-				conn.setConnectTimeout(15000 /* milliseconds */);
+				conn.setReadTimeout(10000);
+				conn.setConnectTimeout(15000);
 				conn.setRequestMethod("POST");
 				conn.setDoInput(true);
 				conn.setDoOutput(true);

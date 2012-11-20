@@ -31,7 +31,7 @@ public class Utils {
 		BufferedReader r = new BufferedReader(new InputStreamReader(in, "UTF-8"), 1024);
 		char[] buf = new char[1024];
 		for (int read = r.read(buf); read != -1; read = r.read(buf) ) {
-			sb.append(buf);
+			sb.append(buf, 0, read);
 		}
 		in.close();
 		return sb.toString();
