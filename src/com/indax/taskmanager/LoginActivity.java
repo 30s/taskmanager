@@ -1,15 +1,5 @@
 package com.indax.taskmanager;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLEncoder;
 import java.util.Date;
 
 import org.json.JSONException;
@@ -19,8 +9,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -43,7 +31,8 @@ public class LoginActivity extends Activity implements OnClickListener {
 		Date now = new Date();
 		long expire = Preferences.getExpire(getApplicationContext()) * 1000;
 
-		if (Preferences.getToken(getApplicationContext()) != null && now.getTime() < expire ) {
+		if (Preferences.getToken(getApplicationContext()) != null
+				&& now.getTime() < expire) {
 			startActivity(new Intent(getApplicationContext(),
 					TaskActivity.class));
 			finish();
@@ -77,80 +66,30 @@ public class LoginActivity extends Activity implements OnClickListener {
 		}
 	}
 
-	private class LoginTask extends AsyncTask {
+	private class LoginTask extends AsyncTask<String, Void, JSONObject> {
 
 		@Override
-		protected Object doInBackground(Object... params) {
-			if (params.length != 2) {
-				return null;
-			}
-
-			String username = (String) params[0];
-			String password = (String) params[1];
-			Log.d(TAG, username + password);
-
-			InputStream is = null;
-			OutputStream os = null;
-			int len = 500;
-			try {
-				String query = String.format(
-						"username=%s&password=%s&apikey=%s", URLEncoder.encode(
-								username, "utf-8"), URLEncoder.encode(password,
-								"utf-8"), URLEncoder.encode(
-								"d09f0e36753b2299c7cfd3d488b701", "utf-8"));
-
-				URL url = new URL(Preferences.getServer(getApplicationContext()) + "/v1/account/login/");
-				HttpURLConnection conn = (HttpURLConnection) url
-						.openConnection();
-				conn.setReadTimeout(10000);
-				conn.setConnectTimeout(15000);
-				conn.setRequestMethod("POST");
-				conn.setDoInput(true);
-				conn.setDoOutput(true);
-				os = conn.getOutputStream();
-				os.write(query.getBytes("utf-8"));
-
-				conn.connect();
-				int response = conn.getResponseCode();
-				Log.d(TAG, "The response is: " + response);
-				is = conn.getInputStream();
-				String contentAsString = Utils.read(is);
-				Log.d(TAG, contentAsString);
-				JSONObject json = new JSONObject(contentAsString);
-				if (json.has("token")) {
-					Preferences.setLoginInfo(getApplicationContext(),
-							username,
-							password,
-							json.getString("token"),
-							json.getString("refresh_token"),
-							json.getLong("expire"));
-					Log.d(TAG, "token: " + json.get("token"));
-				} else {
-					Log.d(TAG, "Login error!");
+		protected JSONObject doInBackground(String... params) {
+			return Utils.login(getApplicationContext(), params[0],
+					params[1]);
+		}
+		
+		@Override
+		protected void onPostExecute(JSONObject ret) {		
+			super.onPostExecute(ret);
+			if (ret.has("token")) {
+				startActivity(new Intent(getApplicationContext(),
+						TaskActivity.class));
+				LoginActivity.this.finish();
+			} else {
+				try {
+					Toast.makeText(getApplicationContext(),
+							ret.getString("message"), Toast.LENGTH_SHORT).show();
+				} catch (JSONException e) {
+					Toast.makeText(getApplicationContext(),
+							"Login failed!", Toast.LENGTH_SHORT).show();
 				}
-				conn.disconnect();
-				return contentAsString;
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} finally {
-				if (is != null) {
-					try {
-						is.close();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-			}
-			return "";
-
+			}			
 		}
 	}
 }

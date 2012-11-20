@@ -11,5 +11,5 @@
     <string name="title_activity_task">TaskActivity</string>
 
     <string name="production_server">http://ax003d.sinaapp.com</string>
-    <string name="debug_server">http://192.168.1.123:8000</string>
+    <string name="debug_server">http://192.168.1.123:8001</string>
 </resources>
