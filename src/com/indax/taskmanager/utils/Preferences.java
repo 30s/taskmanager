@@ -24,14 +24,14 @@ public class Preferences {
 			String password) {
 		PreferenceManager.getDefaultSharedPreferences(context).edit()
 				.putString("username", username)
-				.putString("password", password).commit();		
+				.putString("password", password).commit();
 	}
-	
+
 	public static String getRememberedUsername(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context)
 				.getString("username", "");
 	}
-	
+
 	public static String getRememberedPassword(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context)
 				.getString("password", "");
@@ -45,6 +45,11 @@ public class Preferences {
 	public static long getExpire(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getLong(
 				"expire", 0);
+	}
+
+	public static void expireToken(Context context) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit()
+				.putLong("expire", 0).commit();
 	}
 
 	public static String getServer(Context context) {

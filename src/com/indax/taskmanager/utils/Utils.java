@@ -86,8 +86,9 @@ public class Utils {
 						.setLoginInfo(context, json.getString("token"),
 								json.getString("refresh_token"),
 								json.getLong("expire"));
+			} else {
+				Preferences.expireToken(context);
 			}
-			conn.disconnect();
 		} catch (UnsupportedEncodingException e) {
 			ret.put("message", "Encoding error!");
 		} catch (MalformedURLException e) {

@@ -49,6 +49,9 @@ public class LoginActivity extends Activity implements OnClickListener, OnChecke
 			new LoginTask().execute(username, password);
 		}
 		
+		EditText edit_username = (EditText) findViewById(R.id.edit_username);
+		edit_username.setText(username);
+		
 		Button btn_login = (Button) findViewById(R.id.btn_login);
 		btn_login.setOnClickListener(this);
 		

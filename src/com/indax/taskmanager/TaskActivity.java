@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.indax.taskmanager.adapter.TaskListAdapter;
 import com.indax.taskmanager.utils.Preferences;
@@ -86,7 +85,9 @@ public class TaskActivity extends Activity {
 			if (ret.has("token")) {
 				new GetTask().execute();
 			} else {
+				Preferences.expireToken(getApplicationContext());
 				startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+				TaskActivity.this.finish();
 			}			
 		}		
 		
