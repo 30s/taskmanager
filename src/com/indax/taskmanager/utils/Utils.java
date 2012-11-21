@@ -121,9 +121,15 @@ public class Utils {
 						+ Preferences.getToken(context));
 				conn.connect();
 
-				int response = conn.getResponseCode();
-				if (response != 200) {
-					ret.put("message", response + "");
+				try {
+					int response = conn.getResponseCode();
+					if (response != 200) {
+						ret.put("message", response + "");
+						return new JSONObject(ret);
+					}
+				} catch (IOException e) {
+					// assume it's a 401
+					ret.put("message", "401");
 					return new JSONObject(ret);
 				}
 
@@ -145,10 +151,13 @@ public class Utils {
 				} // for
 			} catch (MalformedURLException e) {
 				ret.put("message", "URL error!");
+				path = "null";
 			} catch (IOException e) {
 				ret.put("message", "Open connection error!");
+				path = "null";
 			} catch (JSONException e) {
 				ret.put("message", "JSON error!");
+				path = "null";
 			}
 		} // while
 
