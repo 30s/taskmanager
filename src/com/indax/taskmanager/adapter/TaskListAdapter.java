@@ -19,6 +19,14 @@ public class TaskListAdapter extends BaseAdapter {
 		this.tasks = tasks;
 	}
 
+	public TaskListAdapter() {
+		this.tasks = new ArrayList<Task>(20);
+	}
+
+	public ArrayList<Task> getTaskList() {
+		return this.tasks;
+	}
+	
 	@Override
 	public int getCount() {
 		return tasks.size();

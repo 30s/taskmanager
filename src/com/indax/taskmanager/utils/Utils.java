@@ -10,8 +10,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -19,7 +21,11 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.indax.taskmanager.models.Task;
+
 public class Utils {
+
+	private static String TAG = Utils.class.getSimpleName();
 
 	public static boolean isNetworkAvailable(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context
@@ -54,13 +60,14 @@ public class Utils {
 		HashMap<String, String> ret = new HashMap<String, String>();
 		JSONObject json = null;
 		ret.put("result", "failed");
-		
+
 		try {
 			String query = String.format("username=%s&password=%s&apikey=%s",
-					URLEncoder.encode(username, "utf-8"),
-					URLEncoder.encode(password, "utf-8"),
-					URLEncoder.encode("d09f0e36753b2299c7cfd3d488b701", "utf-8"));
-			URL url = new URL(Preferences.getServer(context) + "/v1/account/login/");
+					URLEncoder.encode(username, "utf-8"), URLEncoder.encode(
+							password, "utf-8"), URLEncoder.encode(
+							"d09f0e36753b2299c7cfd3d488b701", "utf-8"));
+			URL url = new URL(Preferences.getServer(context)
+					+ "/v1/account/login/");
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setReadTimeout(10000);
 			conn.setConnectTimeout(15000);
@@ -74,11 +81,12 @@ public class Utils {
 			is = conn.getInputStream();
 			json = new JSONObject(Utils.read(is));
 			if (json.has("token")) {
-				Preferences.setLoginInfo(context, 
-						json.getString("token"), json.getString("refresh_token"),
-						json.getLong("expire"));
+				Preferences
+						.setLoginInfo(context, json.getString("token"),
+								json.getString("refresh_token"),
+								json.getLong("expire"));
 			}
-			conn.disconnect();			
+			conn.disconnect();
 		} catch (UnsupportedEncodingException e) {
 			ret.put("message", "Encoding error!");
 		} catch (MalformedURLException e) {
@@ -89,9 +97,61 @@ public class Utils {
 			ret.put("message", "Decode response error!");
 		}
 
-		if ( json == null ) {
+		if (json == null) {
 			json = new JSONObject(ret);
 		}
 		return json;
+	}
+
+	public static JSONObject load_task_list(Context context,
+			ArrayList<Task> tasks) {
+		HashMap<String, String> ret = new HashMap<String, String>();
+
+		InputStream is = null;
+		String path = "/v1/task/?format=json";
+
+		while (!path.equals("null")) {
+			try {
+				URL url = new URL(Preferences.getServer(context) + path);
+				HttpURLConnection conn = (HttpURLConnection) url
+						.openConnection();
+				conn.setRequestMethod("GET");
+				conn.setDoInput(true);
+				conn.setRequestProperty("AUTHORIZATION", "Bearer "
+						+ Preferences.getToken(context));
+				conn.connect();
+
+				int response = conn.getResponseCode();
+				if (response != 200) {
+					ret.put("message", response + "");
+					return new JSONObject(ret);
+				}
+
+				is = conn.getInputStream();
+				JSONObject json = new JSONObject(Utils.read(is));
+				JSONObject meta = json.getJSONObject("meta");
+				path = meta.getString("next");
+				if (!json.has("objects")) {
+					continue;
+				}
+
+				JSONArray json_array = json.getJSONArray("objects");
+				for (int i = 0; i < json_array.length(); i++) {
+					JSONObject json_task = (JSONObject) json_array.get(i);
+					tasks.add(new Task(json_task.getString("name"), json_task
+							.getString("type").charAt(0), json_task
+							.getBoolean("finish"), json_task
+							.getString("remark")));
+				} // for
+			} catch (MalformedURLException e) {
+				ret.put("message", "URL error!");
+			} catch (IOException e) {
+				ret.put("message", "Open connection error!");
+			} catch (JSONException e) {
+				ret.put("message", "JSON error!");
+			}
+		} // while
+
+		return new JSONObject(ret);
 	}
 }
