@@ -56,6 +56,7 @@ public class Utils {
 			String password) {
 		InputStream is = null;
 		OutputStream os = null;
+		HttpURLConnection conn = null;
 
 		HashMap<String, String> ret = new HashMap<String, String>();
 		JSONObject json = null;
@@ -68,7 +69,7 @@ public class Utils {
 							"d09f0e36753b2299c7cfd3d488b701", "utf-8"));
 			URL url = new URL(Preferences.getServer(context)
 					+ "/v1/account/login/");
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn = (HttpURLConnection) url.openConnection();
 			conn.setReadTimeout(10000);
 			conn.setConnectTimeout(15000);
 			conn.setRequestMethod("POST");
@@ -95,6 +96,10 @@ public class Utils {
 			ret.put("message", "Open connection error!");
 		} catch (JSONException e) {
 			ret.put("message", "Decode response error!");
+		} finally {
+			if ( conn != null ) {
+				conn.disconnect();
+			}
 		}
 
 		if (json == null) {
@@ -108,12 +113,13 @@ public class Utils {
 		HashMap<String, String> ret = new HashMap<String, String>();
 
 		InputStream is = null;
+		HttpURLConnection conn = null;
 		String path = "/v1/task/?format=json";
 
 		while (!path.equals("null")) {
 			try {
 				URL url = new URL(Preferences.getServer(context) + path);
-				HttpURLConnection conn = (HttpURLConnection) url
+				conn = (HttpURLConnection) url
 						.openConnection();
 				conn.setRequestMethod("GET");
 				conn.setDoInput(true);
@@ -158,6 +164,10 @@ public class Utils {
 			} catch (JSONException e) {
 				ret.put("message", "JSON error!");
 				path = "null";
+			} finally {
+				if ( conn != null ) {
+					conn.disconnect();
+				}
 			}
 		} // while
 
