@@ -13,16 +13,20 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.indax.taskmanager.utils.Preferences;
 import com.indax.taskmanager.utils.Utils;
 
-public class LoginActivity extends Activity implements OnClickListener {
+public class LoginActivity extends Activity implements OnClickListener, OnCheckedChangeListener {
 
 	private final String TAG = LoginActivity.class.getSimpleName();
-
+	private boolean remember = false;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -39,8 +43,17 @@ public class LoginActivity extends Activity implements OnClickListener {
 			return;
 		}
 
+		String username = Preferences.getRememberedUsername(getBaseContext());
+		String password = Preferences.getRememberedPassword(getBaseContext());
+		if ( username.length() != 0 && password.length() != 0 ) {
+			new LoginTask().execute(username, password);
+		}
+		
 		Button btn_login = (Button) findViewById(R.id.btn_login);
 		btn_login.setOnClickListener(this);
+		
+		CheckBox chk_remember  = (CheckBox) findViewById(R.id.chk_remember);
+		chk_remember.setOnCheckedChangeListener(this);
 	}
 
 	@Override
@@ -60,9 +73,16 @@ public class LoginActivity extends Activity implements OnClickListener {
 
 			EditText edit_username = (EditText) findViewById(R.id.edit_username);
 			EditText edit_password = (EditText) findViewById(R.id.edit_password);
-
-			new LoginTask().execute(edit_username.getText().toString(),
-					edit_password.getText().toString());
+			CheckBox chk_remember  = (CheckBox) findViewById(R.id.chk_remember);
+			
+			String username = edit_username.getText().toString();
+			String password = edit_password.getText().toString();
+			
+			if ( chk_remember.isChecked() ) {
+				Preferences.setRemember(getApplicationContext(), username, password);
+			}
+			
+			new LoginTask().execute(username, password);
 		}
 	}
 
@@ -90,6 +110,18 @@ public class LoginActivity extends Activity implements OnClickListener {
 							"Login failed!", Toast.LENGTH_SHORT).show();
 				}
 			}			
+		}
+	}
+
+	@Override
+	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+		if ( buttonView.getId() == R.id.chk_remember ) {
+			if ( isChecked ) {
+				remember = true;
+			} else {
+				remember = false;
+				Preferences.setRemember(getApplicationContext(), "", "");
+			}
 		}
 	}
 }

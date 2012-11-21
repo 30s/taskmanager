@@ -1,5 +1,8 @@
 <resources>
 
+    <string name="production_server">http://ax003d.sinaapp.com</string>
+    <string name="debug_server">http://192.168.1.123:8001</string>
+    
     <string name="app_name">taskmanager</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_login">LoginActivity</string>
@@ -7,9 +10,8 @@
     <string name="hint_username">username</string>
     <string name="hint_password">password</string>
     <string name="hint_no_network">Currently not connected!</string>
+    <string name="chk_remember">Remember</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_task">TaskActivity</string>
 
-    <string name="production_server">http://ax003d.sinaapp.com</string>
-    <string name="debug_server">http://192.168.1.123:8001</string>
 </resources>

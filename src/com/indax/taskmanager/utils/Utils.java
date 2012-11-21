@@ -11,7 +11,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
-import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,11 +71,10 @@ public class Utils {
 			os.write(query.getBytes("utf-8"));
 
 			conn.connect();
-			// int response = conn.getResponseCode();
 			is = conn.getInputStream();
 			json = new JSONObject(Utils.read(is));
 			if (json.has("token")) {
-				Preferences.setLoginInfo(context, username, password,
+				Preferences.setLoginInfo(context, 
 						json.getString("token"), json.getString("refresh_token"),
 						json.getLong("expire"));
 			}
