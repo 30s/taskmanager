@@ -76,12 +76,11 @@ public class LoginActivity extends Activity implements OnClickListener, OnChecke
 
 			EditText edit_username = (EditText) findViewById(R.id.edit_username);
 			EditText edit_password = (EditText) findViewById(R.id.edit_password);
-			CheckBox chk_remember  = (CheckBox) findViewById(R.id.chk_remember);
 			
 			String username = edit_username.getText().toString();
 			String password = edit_password.getText().toString();
 			
-			if ( chk_remember.isChecked() ) {
+			if ( remember ) {
 				Preferences.setRemember(getApplicationContext(), username, password);
 			}
 			
