@@ -1,5 +1,7 @@
 package com.indax.taskmanager;
 
+import java.util.ArrayList;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,25 +11,29 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
-import android.widget.ListView;
+import android.widget.ExpandableListView;
 
-import com.indax.taskmanager.adapter.TaskListAdapter;
+import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
+import com.indax.taskmanager.models.Task;
+import com.indax.taskmanager.models.TaskType;
 import com.indax.taskmanager.utils.Preferences;
 import com.indax.taskmanager.utils.Utils;
 
 public class TaskActivity extends Activity {
 
 	private final String TAG = TaskActivity.class.getSimpleName();
-	private TaskListAdapter task_adapter;
+	private ArrayList<Task> tasks;
+	private TaskExpandableListAdapter task_expandable_adapter;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_task);
 
-		ListView lst_task = (ListView) findViewById(R.id.lst_task);
-		task_adapter = new TaskListAdapter();
-		lst_task.setAdapter(task_adapter);
+		tasks = new ArrayList<Task>(20);
+		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
+		task_expandable_adapter = new TaskExpandableListAdapter();
+		lst_task.setAdapter(task_expandable_adapter);
 		
 		new GetTask().execute();
 	}
@@ -43,7 +49,7 @@ public class TaskActivity extends Activity {
 		@Override
 		protected JSONObject doInBackground(Void... params) {			
 			return Utils.load_task_list(getApplicationContext(), 
-					TaskActivity.this.task_adapter.getTaskList());			
+					TaskActivity.this.tasks);			
 		}
 
 		@Override
@@ -65,7 +71,25 @@ public class TaskActivity extends Activity {
 					}			
 				}
 			} catch (JSONException e) {
-				TaskActivity.this.task_adapter.notifyDataSetChanged();
+				Task task;
+				int group_position = 0;
+				for ( int i = 0; i < TaskActivity.this.tasks.size(); i++ ) {
+					task = TaskActivity.this.tasks.get(i);
+					
+					if ( task.getType() == TaskType.DAILY ) {
+						group_position = 0;
+					} else if ( task.getType() == TaskType.WEEKLY ) {
+						group_position = 1;
+					} else if ( task.getType() == TaskType.MONTHLY ) {
+						group_position = 2;
+					} else if ( task.getType() == TaskType.YEARLY ) {
+						group_position = 3;
+					} else {
+						group_position = 4;
+					}
+					TaskActivity.this.task_expandable_adapter.getGroup(group_position).add(task);
+				}
+				TaskActivity.this.task_expandable_adapter.notifyDataSetChanged();
 			}
 		}
 	} // GetTask

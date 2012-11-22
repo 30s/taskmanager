@@ -25,7 +25,7 @@ import com.indax.taskmanager.models.Task;
 
 public class Utils {
 
-	private static String TAG = Utils.class.getSimpleName();
+	// private static String TAG = Utils.class.getSimpleName();
 
 	public static boolean isNetworkAvailable(Context context) {
 		ConnectivityManager cm = (ConnectivityManager) context

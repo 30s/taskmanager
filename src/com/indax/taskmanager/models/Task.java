@@ -36,4 +36,12 @@ public class Task {
 	public Boolean getFinish() {
 		return finish;
 	}
+
+	public TaskType getType() {
+		return type;
+	}
+	
+	public String getRemark() {
+		return remark;
+	}
 }

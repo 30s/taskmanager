@@ -24,7 +24,7 @@ import com.indax.taskmanager.utils.Utils;
 
 public class LoginActivity extends Activity implements OnClickListener, OnCheckedChangeListener {
 
-	private final String TAG = LoginActivity.class.getSimpleName();
+	// private final String TAG = LoginActivity.class.getSimpleName();
 	private boolean remember = false;
 	
 	@Override
