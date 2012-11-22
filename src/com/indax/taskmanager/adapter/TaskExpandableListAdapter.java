@@ -87,7 +87,7 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
         } else {
             final Context context = parent.getContext();
             final LayoutInflater inflater = LayoutInflater.from(context);
-            view = (TextView)inflater.inflate(android.R.layout.simple_expandable_list_item_1, null);
+            view = (TextView)inflater.inflate(R.layout.task_header, null);
         }
         
         switch (groupPosition) {
