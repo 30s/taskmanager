@@ -11,7 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
+import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.LinearLayout;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.models.Task;
@@ -33,7 +35,7 @@ public class TaskActivity extends Activity {
 		tasks = new ArrayList<Task>(20);
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_expandable_adapter = new TaskExpandableListAdapter();
-		lst_task.setAdapter(task_expandable_adapter);
+		lst_task.setAdapter(task_expandable_adapter);				
 		
 		new GetTask().execute();
 	}
@@ -44,12 +46,18 @@ public class TaskActivity extends Activity {
 		return true;
 	}
 
-	private class GetTask extends AsyncTask<Void, Void, JSONObject> {
+	private class GetTask extends AsyncTask<Void, LinearLayout, JSONObject> {
 
 		@Override
 		protected JSONObject doInBackground(Void... params) {			
 			return Utils.load_task_list(getApplicationContext(), 
 					TaskActivity.this.tasks);			
+		}
+		
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
 		}
 
 		@Override
@@ -91,6 +99,7 @@ public class TaskActivity extends Activity {
 				}
 				TaskActivity.this.task_expandable_adapter.notifyDataSetChanged();
 			}
+			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}
 	} // GetTask
 	
