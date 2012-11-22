@@ -121,9 +121,11 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 						R.layout.task_item, null);
 		
 		Task task = getChild(groupPosition, childPosition);
-		CheckBox chk_item = (CheckBox) view.findViewById(R.id.chk_item);				
+		CheckBox chk_item = (CheckBox) view.findViewById(R.id.chk_item);
+		TextView txt_remark = (TextView) view.findViewById(R.id.txt_remark);
 		chk_item.setChecked(task.getFinish());
 		chk_item.setText(task.getName());
+		txt_remark.setText(task.getRemark());
 		
 		return view;
 	}
