@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.Task;
-import com.indax.taskmanager.models.TaskType;
 
 public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -28,6 +27,14 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 		this.tasks_monthly = new ArrayList<Task>(8);
 		this.tasks_yearly = new ArrayList<Task>(8);
 		this.tasks_etc = new ArrayList<Task>(8);
+	}
+	
+	public void clearTask() {
+		this.tasks_daily.clear();
+		this.tasks_weekly.clear();
+		this.tasks_monthly.clear();
+		this.tasks_yearly.clear();
+		this.tasks_etc.clear();
 	}
 
 	@Override

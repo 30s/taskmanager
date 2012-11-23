@@ -39,8 +39,20 @@ public class TaskActivity extends Activity {
 		tasks = new ArrayList<Task>(20);
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_expandable_adapter = new TaskExpandableListAdapter();
-		lst_task.setAdapter(task_expandable_adapter);				
+		lst_task.setAdapter(task_expandable_adapter);						
 		
+		loadTasks();
+		
+		if ( Preferences.getSyncTime(getApplicationContext()) == 0 ) {
+			// get all tasks
+			new GetTask().execute();	
+		} else {
+			// sync
+		}
+	}
+	
+	private void loadTasks() {
+		task_expandable_adapter.clearTask();
 		ContentResolver contentResolver = getContentResolver();
 		Cursor cursor = contentResolver.query(Tasks.CONTENT_URI, null, null, null, null);
 		startManagingCursor(cursor);
@@ -57,14 +69,7 @@ public class TaskActivity extends Activity {
 			Task t = new Task(name, type.charAt(0), finish != 0, remark);
 			task_expandable_adapter.addChild(t);
 		}
-		task_expandable_adapter.notifyDataSetChanged();
-		
-		if ( Preferences.getSyncTime(getApplicationContext()) == 0 ) {
-			// get all tasks
-			new GetTask().execute();	
-		} else {
-			// sync
-		}
+		task_expandable_adapter.notifyDataSetChanged();		
 	}
 
 	@Override
@@ -118,7 +123,7 @@ public class TaskActivity extends Activity {
 					contentResolver.insert(Tasks.CONTENT_URI, values);
 				}
 				Preferences.setSyncTime(getApplicationContext());
-				task_expandable_adapter.notifyDataSetChanged();
+				loadTasks();
 			}
 			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}
