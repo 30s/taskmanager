@@ -41,11 +41,11 @@ public class Task {
 		public static final Uri CONTENT_URI = Uri.parse("content://"
 				+ TaskContentProvider.AUTHORITY + "/tasks");
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.taskmanager.tasks";
-		public static final String TASK_ID = "_id";
-		public static final String TASK_NAME = "name";
-		public static final String TASK_TYPE = "type";
-		public static final String TASK_FINISH = "finish";
-		public static final String TASK_REMARK = "remark";
+		public static final String ID = "_id";
+		public static final String NAME = "name";
+		public static final String TYPE = "type";
+		public static final String FINISH = "finish";
+		public static final String REMARK = "remark";
 	}
 
 	public String getName() {
@@ -58,6 +58,21 @@ public class Task {
 
 	public TaskType getType() {
 		return type;
+	}
+	
+	public String getTypeAsString() {
+		switch (type) {
+		case DAILY:
+			return "D";
+		case WEEKLY:
+			return "W";
+		case MONTHLY:
+			return "M";
+		case YEARLY:
+			return "Y";
+		default:
+			return "E";
+		}		
 	}
 
 	public String getRemark() {

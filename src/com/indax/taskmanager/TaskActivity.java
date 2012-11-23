@@ -6,7 +6,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +20,7 @@ import android.widget.LinearLayout;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.models.Task;
+import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.models.TaskType;
 import com.indax.taskmanager.utils.Preferences;
 import com.indax.taskmanager.utils.Utils;
@@ -37,7 +41,30 @@ public class TaskActivity extends Activity {
 		task_expandable_adapter = new TaskExpandableListAdapter();
 		lst_task.setAdapter(task_expandable_adapter);				
 		
-		new GetTask().execute();
+		ContentResolver contentResolver = getContentResolver();
+		Cursor cursor = contentResolver.query(Tasks.CONTENT_URI, null, null, null, null);
+		startManagingCursor(cursor);
+		int idx_id   = cursor.getColumnIndex(Tasks.ID);
+		int idx_name = cursor.getColumnIndex(Tasks.NAME);
+		int idx_type = cursor.getColumnIndex(Tasks.TYPE);
+		int idx_finish = cursor.getColumnIndex(Tasks.FINISH);
+		int idx_remark = cursor.getColumnIndex(Tasks.REMARK);
+		while ( cursor.moveToNext() ) {
+			String name = cursor.getString(idx_name);
+			String type = cursor.getString(idx_type);
+			int finish  = cursor.getInt(idx_finish);
+			String remark = cursor.getString(idx_remark);
+			Task t = new Task(name, type.charAt(0), finish != 0, remark);
+			task_expandable_adapter.addChild(t);
+		}
+		task_expandable_adapter.notifyDataSetChanged();
+		
+		if ( Preferences.getSyncTime(getApplicationContext()) == 0 ) {
+			// get all tasks
+			new GetTask().execute();	
+		} else {
+			// sync
+		}
 	}
 
 	@Override
@@ -79,25 +106,19 @@ public class TaskActivity extends Activity {
 					}			
 				}
 			} catch (JSONException e) {
+				ContentResolver contentResolver = getContentResolver();
 				Task task;
-				int group_position = 0;
 				for ( int i = 0; i < TaskActivity.this.tasks.size(); i++ ) {
 					task = TaskActivity.this.tasks.get(i);
-					
-					if ( task.getType() == TaskType.DAILY ) {
-						group_position = 0;
-					} else if ( task.getType() == TaskType.WEEKLY ) {
-						group_position = 1;
-					} else if ( task.getType() == TaskType.MONTHLY ) {
-						group_position = 2;
-					} else if ( task.getType() == TaskType.YEARLY ) {
-						group_position = 3;
-					} else {
-						group_position = 4;
-					}
-					TaskActivity.this.task_expandable_adapter.getGroup(group_position).add(task);
+					ContentValues values = new ContentValues();
+					values.put(Tasks.NAME, task.getName());
+					values.put(Tasks.TYPE, task.getTypeAsString());
+					values.put(Tasks.FINISH, task.getFinish());
+					values.put(Tasks.REMARK, task.getRemark());
+					contentResolver.insert(Tasks.CONTENT_URI, values);
 				}
-				TaskActivity.this.task_expandable_adapter.notifyDataSetChanged();
+				Preferences.setSyncTime(getApplicationContext());
+				task_expandable_adapter.notifyDataSetChanged();
 			}
 			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}

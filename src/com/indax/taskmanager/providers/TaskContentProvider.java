@@ -37,10 +37,10 @@ public class TaskContentProvider extends ContentProvider {
 		@Override
 		public void onCreate(SQLiteDatabase db) {
 			db.execSQL("CREATE TABLE " + TASKS_TABLE_NAME + " ("
-					+ Tasks.TASK_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
-					+ Tasks.TASK_NAME + " VARCHAR(256), " + Tasks.TASK_TYPE
-					+ " VARCHAR(128), " + Tasks.TASK_FINISH + " INTEGER, "
-					+ Tasks.TASK_REMARK + " TEXT" + " );");
+					+ Tasks.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ Tasks.NAME + " VARCHAR(256), " + Tasks.TYPE
+					+ " VARCHAR(128), " + Tasks.FINISH + " INTEGER, "
+					+ Tasks.REMARK + " TEXT" + " );");
 		}
 
 		@Override
@@ -70,7 +70,7 @@ public class TaskContentProvider extends ContentProvider {
 		case TASKS:
 			break;
 		case TASKS_ID:
-			selection = selection + Tasks.TASK_ID + " = " + uri.getLastPathSegment();
+			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -99,7 +99,7 @@ public class TaskContentProvider extends ContentProvider {
 		}
 		
 		SQLiteDatabase db = db_helper.getWritableDatabase();
-		long row_id = db.insert(TASKS_TABLE_NAME, Tasks.TASK_NAME, values);
+		long row_id = db.insert(TASKS_TABLE_NAME, Tasks.NAME, values);
 		if ( row_id > 0 ) {
 			Uri task_uri = ContentUris.withAppendedId(Tasks.CONTENT_URI, row_id);
 			getContext().getContentResolver().notifyChange(task_uri, null);
@@ -116,7 +116,7 @@ public class TaskContentProvider extends ContentProvider {
 		case TASKS:
 			break;
 		case TASKS_ID:
-			selection = selection + Tasks.TASK_ID + " = " + uri.getLastPathSegment();
+			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -151,10 +151,10 @@ public class TaskContentProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/#", TASKS_ID);
 		
 		tasksProjectionMap = new HashMap<String, String>();
-		tasksProjectionMap.put(Tasks.TASK_ID, Tasks.TASK_ID);
-		tasksProjectionMap.put(Tasks.TASK_NAME, Tasks.TASK_NAME);
-		tasksProjectionMap.put(Tasks.TASK_TYPE, Tasks.TASK_TYPE);
-		tasksProjectionMap.put(Tasks.TASK_FINISH, Tasks.TASK_FINISH);
-		tasksProjectionMap.put(Tasks.TASK_REMARK, Tasks.TASK_REMARK);
+		tasksProjectionMap.put(Tasks.ID, Tasks.ID);
+		tasksProjectionMap.put(Tasks.NAME, Tasks.NAME);
+		tasksProjectionMap.put(Tasks.TYPE, Tasks.TYPE);
+		tasksProjectionMap.put(Tasks.FINISH, Tasks.FINISH);
+		tasksProjectionMap.put(Tasks.REMARK, Tasks.REMARK);
 	}
 }

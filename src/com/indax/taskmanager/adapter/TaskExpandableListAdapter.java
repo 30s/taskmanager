@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.Task;
+import com.indax.taskmanager.models.TaskType;
 
 public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -57,6 +58,26 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 		}
 	}
 
+	public void addChild(Task task) {
+		switch (task.getType()) {
+		case DAILY:
+			tasks_daily.add(task);
+			break;
+		case WEEKLY:
+			tasks_weekly.add(task);
+			break;
+		case MONTHLY:
+			tasks_monthly.add(task);
+			break;
+		case YEARLY:
+			tasks_yearly.add(task);
+			break;
+		default:
+			tasks_etc.add(task);
+			break;
+		}
+	}
+	
 	@Override
 	public Task getChild(int groupPosition, int childPosition) {
 		return getGroup(groupPosition).get(childPosition);

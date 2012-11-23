@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.indax.taskmanager"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -27,6 +27,8 @@
             android:name=".TaskActivity"
             android:label="@string/title_activity_task" >
         </activity>
+        <provider android:name="com.indax.taskmanager.providers.TaskContentProvider" android:authorities="com.indax.taskmanager.providers.TaskContentProvider" tools:ignore="ExportedContentProvider">            
+        </provider>
     </application>
 
 </manifest>

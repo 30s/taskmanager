@@ -1,5 +1,7 @@
 package com.indax.taskmanager.utils;
 
+import java.util.Date;
+
 import com.indax.taskmanager.R;
 
 import android.content.Context;
@@ -64,5 +66,15 @@ public class Preferences {
 		}
 
 		return Preferences.SERVER;
+	}
+	
+	public static void setSyncTime(Context context) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit()
+			.putLong("sync_time", new Date().getTime() / 1000).commit();
+	}
+	
+	public static long getSyncTime(Context context) {
+		return PreferenceManager.getDefaultSharedPreferences(context).getLong(
+				"sync_time", 0);
 	}
 }
