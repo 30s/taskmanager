@@ -200,7 +200,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		String[] projections = new String[] { Tasks._ID, Tasks.NAME,
 				Tasks.FINISH, Tasks.REMARK };
 		return new CursorLoader(this, Tasks.CONTENT_URI, projections, null,
-				null, null);
+				null, Tasks.TYPE);
 	}
 
 	@Override
