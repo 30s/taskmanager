@@ -15,13 +15,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.SimpleCursorAdapter;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.models.Task;
 import com.indax.taskmanager.models.Task.Tasks;
-import com.indax.taskmanager.models.TaskType;
 import com.indax.taskmanager.utils.Preferences;
 import com.indax.taskmanager.utils.Utils;
 
@@ -37,11 +37,12 @@ public class TaskActivity extends Activity {
 		setContentView(R.layout.activity_task);
 
 		tasks = new ArrayList<Task>(20);
-		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
-		task_expandable_adapter = new TaskExpandableListAdapter();
-		lst_task.setAdapter(task_expandable_adapter);						
-		
-		loadTasks();
+		set_cursor_adapter();
+//		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
+//		task_expandable_adapter = new TaskExpandableListAdapter();
+//		lst_task.setAdapter(task_expandable_adapter);						
+//		
+//		loadTasks();
 		
 		if ( Preferences.getSyncTime(getApplicationContext()) == 0 ) {
 			// get all tasks
@@ -49,6 +50,19 @@ public class TaskActivity extends Activity {
 		} else {
 			// sync
 		}
+	}
+	
+	private void set_cursor_adapter() {
+		String[] projections = new String[] {Tasks._ID, Tasks.NAME, Tasks.FINISH, Tasks.REMARK};
+		Cursor cursor = getContentResolver().query(Tasks.CONTENT_URI, projections, null, null, null);
+		startManagingCursor(cursor);
+		
+		String[] columns = new String[] {Tasks.NAME, Tasks.REMARK};
+		int[] to = new int[] { R.id.chk_item, R.id.txt_remark};
+		
+		SimpleCursorAdapter adapter = new SimpleCursorAdapter(this, R.layout.task_item, cursor, columns, to);		
+		ListView lst_task = (ListView) findViewById(R.id.lst_task);
+		lst_task.setAdapter(adapter);
 	}
 	
 	private void loadTasks() {
@@ -123,7 +137,7 @@ public class TaskActivity extends Activity {
 					contentResolver.insert(Tasks.CONTENT_URI, values);
 				}
 				Preferences.setSyncTime(getApplicationContext());
-				loadTasks();
+				// loadTasks();
 			}
 			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}
