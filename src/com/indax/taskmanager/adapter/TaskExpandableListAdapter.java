@@ -3,6 +3,7 @@ package com.indax.taskmanager.adapter;
 import java.util.ArrayList;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.TextView;
 
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.Task;
+import com.indax.taskmanager.models.Task.Tasks;
 
 public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 
@@ -37,6 +39,27 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 		this.tasks_etc.clear();
 	}
 
+	public void load_tasks(Cursor cursor) {
+		clearTask();
+		if ( cursor == null ) {
+			return;
+		}
+		
+		int idx_name = cursor.getColumnIndex(Tasks.NAME);
+		int idx_type = cursor.getColumnIndex(Tasks.TYPE);
+		int idx_finish = cursor.getColumnIndex(Tasks.FINISH);
+		int idx_remark = cursor.getColumnIndex(Tasks.REMARK);
+		while (cursor.moveToNext()) {
+			String name = cursor.getString(idx_name);
+			String type = cursor.getString(idx_type);
+			int finish = cursor.getInt(idx_finish);
+			String remark = cursor.getString(idx_remark);
+			Task t = new Task(name, type.charAt(0), finish != 0, remark);
+			addChild(t);
+		}
+		notifyDataSetChanged();		
+	}
+	
 	@Override
 	public int getGroupCount() {
 		return 5;

@@ -19,9 +19,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.models.Task;
@@ -34,8 +33,8 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 	private final String TAG = TaskActivity.class.getSimpleName();
 	private ArrayList<Task> tasks;
-	private TaskExpandableListAdapter task_expandable_adapter;
-	private SimpleCursorAdapter task_simple_cursor_adapter;
+	private TaskExpandableListAdapter task_adapter;
+	private static int TASK_LOADER = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -43,13 +42,11 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		setContentView(R.layout.activity_task);
 
 		tasks = new ArrayList<Task>(20);
-		set_cursor_adapter();
-		// ExpandableListView lst_task = (ExpandableListView)
-		// findViewById(R.id.lst_task);
-		// task_expandable_adapter = new TaskExpandableListAdapter();
-		// lst_task.setAdapter(task_expandable_adapter);
-		//
-		// loadTasks();
+		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
+		task_adapter = new TaskExpandableListAdapter();
+		lst_task.setAdapter(task_adapter);
+
+		getLoaderManager().initLoader(TASK_LOADER, null, this);
 
 		if (Preferences.getSyncTime(getApplicationContext()) == 0) {
 			// get all tasks
@@ -58,60 +55,6 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 			// sync
 		}
 	}
-
-	private void set_cursor_adapter() {
-		String[] columns = new String[] { Tasks.NAME, Tasks.REMARK };
-		int[] to = new int[] { R.id.chk_item, R.id.txt_remark };
-
-		task_simple_cursor_adapter = new SimpleCursorAdapter(this,
-				R.layout.task_item, null, columns, to, 0);
-		ListView lst_task = (ListView) findViewById(R.id.lst_task);
-		lst_task.setAdapter(task_simple_cursor_adapter);
-
-		getLoaderManager().initLoader(0, null, this);
-	}
-
-	// private Handler mHandler = new Handler() {
-	// public void handleMessage(android.os.Message msg) {
-	// adapter.changeCursor(ListEventAdapter
-	// .getEventCursor(GalleryActivity.this));
-	// Log.d(TAG, "event content changed.");
-	// };
-	// };
-	// private ContentObserver taskContentObserver = new
-	// ContentObserver(mHandler) {
-	// @Override
-	// public void onChange(boolean selfChange) {
-	// mHandler.obtainMessage().sendToTarget();
-	// }
-	// };
-	//
-	// private void registerContentObservers() {
-	// getContentResolver().registerContentObserver(
-	// Tasks.CONTENT_URI, false, taskContentObserver);
-	// }
-
-	// private void loadTasks() {
-	// task_expandable_adapter.clearTask();
-	// ContentResolver contentResolver = getContentResolver();
-	// Cursor cursor = contentResolver.query(Tasks.CONTENT_URI, null, null,
-	// null, null);
-	// startManagingCursor(cursor);
-	// int idx_id = cursor.getColumnIndex(Tasks.ID);
-	// int idx_name = cursor.getColumnIndex(Tasks.NAME);
-	// int idx_type = cursor.getColumnIndex(Tasks.TYPE);
-	// int idx_finish = cursor.getColumnIndex(Tasks.FINISH);
-	// int idx_remark = cursor.getColumnIndex(Tasks.REMARK);
-	// while (cursor.moveToNext()) {
-	// String name = cursor.getString(idx_name);
-	// String type = cursor.getString(idx_type);
-	// int finish = cursor.getInt(idx_finish);
-	// String remark = cursor.getString(idx_remark);
-	// Task t = new Task(name, type.charAt(0), finish != 0, remark);
-	// task_expandable_adapter.addChild(t);
-	// }
-	// task_expandable_adapter.notifyDataSetChanged();
-	// }
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -166,7 +109,6 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 					contentResolver.insert(Tasks.CONTENT_URI, values);
 				}
 				Preferences.setSyncTime(getApplicationContext());
-				// loadTasks();
 			}
 			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}
@@ -197,19 +139,23 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		String[] projections = new String[] { Tasks._ID, Tasks.NAME,
-				Tasks.FINISH, Tasks.REMARK };
-		return new CursorLoader(this, Tasks.CONTENT_URI, projections, null,
-				null, Tasks.TYPE);
+		if (id == TASK_LOADER) {
+			String[] projections = new String[] { Tasks._ID, Tasks.NAME,
+					Tasks.TYPE, Tasks.FINISH, Tasks.REMARK };
+			return new CursorLoader(this, Tasks.CONTENT_URI, projections, null,
+					null, Tasks.TYPE);
+		}
+		
+		throw new IllegalArgumentException("Unknown loader id!");
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		task_simple_cursor_adapter.swapCursor(data);
+		task_adapter.load_tasks(data);		
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		task_simple_cursor_adapter.swapCursor(null);
+		task_adapter.load_tasks(null);
 	}
 }

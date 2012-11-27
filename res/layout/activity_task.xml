@@ -26,10 +26,10 @@
             android:text="@string/loading" />
     </LinearLayout>
 
-    <ListView
+    <ExpandableListView
         android:id="@+id/lst_task"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
-    </ListView>
+    </ExpandableListView>
 
 </LinearLayout>
