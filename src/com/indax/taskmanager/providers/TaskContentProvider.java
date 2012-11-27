@@ -36,8 +36,9 @@ public class TaskContentProvider extends ContentProvider {
 
 		@Override
 		public void onCreate(SQLiteDatabase db) {
-			db.execSQL("CREATE TABLE " + TASKS_TABLE_NAME + " ("
+			db.execSQL("CREATE TABLE " + TASKS_TABLE_NAME + " (" 
 					+ Tasks.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ Tasks.GUID + " INTEGER, "
 					+ Tasks.NAME + " VARCHAR(256), " + Tasks.TYPE
 					+ " VARCHAR(128), " + Tasks.FINISH + " INTEGER, "
 					+ Tasks.REMARK + " TEXT" + " );");
@@ -152,6 +153,7 @@ public class TaskContentProvider extends ContentProvider {
 		
 		tasksProjectionMap = new HashMap<String, String>();
 		tasksProjectionMap.put(Tasks.ID, Tasks.ID);
+		tasksProjectionMap.put(Tasks.GUID, Tasks.GUID);
 		tasksProjectionMap.put(Tasks.NAME, Tasks.NAME);
 		tasksProjectionMap.put(Tasks.TYPE, Tasks.TYPE);
 		tasksProjectionMap.put(Tasks.FINISH, Tasks.FINISH);

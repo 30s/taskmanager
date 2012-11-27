@@ -45,16 +45,18 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 			return;
 		}
 		
+		int idx_guid = cursor.getColumnIndex(Tasks.GUID);
 		int idx_name = cursor.getColumnIndex(Tasks.NAME);
 		int idx_type = cursor.getColumnIndex(Tasks.TYPE);
 		int idx_finish = cursor.getColumnIndex(Tasks.FINISH);
 		int idx_remark = cursor.getColumnIndex(Tasks.REMARK);
 		while (cursor.moveToNext()) {
+			int guid = cursor.getInt(idx_guid);
 			String name = cursor.getString(idx_name);
 			String type = cursor.getString(idx_type);
 			int finish = cursor.getInt(idx_finish);
 			String remark = cursor.getString(idx_remark);
-			Task t = new Task(name, type.charAt(0), finish != 0, remark);
+			Task t = new Task(guid, name, type.charAt(0), finish != 0, remark);
 			addChild(t);
 		}
 		notifyDataSetChanged();		

@@ -102,6 +102,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 				for (int i = 0; i < TaskActivity.this.tasks.size(); i++) {
 					task = TaskActivity.this.tasks.get(i);
 					ContentValues values = new ContentValues();
+					values.put(Tasks.GUID, task.getGuid());
 					values.put(Tasks.NAME, task.getName());
 					values.put(Tasks.TYPE, task.getTypeAsString());
 					values.put(Tasks.FINISH, task.getFinish());
@@ -113,6 +114,16 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		}
 	} // GetTask
+
+	private class SyncTask extends AsyncTask<Void, LinearLayout, JSONException> {
+
+		@Override
+		protected JSONException doInBackground(Void... params) {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+	}
 
 	private class LoginTask extends AsyncTask<String, Void, JSONObject> {
 
@@ -140,18 +151,18 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
 		if (id == TASK_LOADER) {
-			String[] projections = new String[] { Tasks._ID, Tasks.NAME,
-					Tasks.TYPE, Tasks.FINISH, Tasks.REMARK };
+			String[] projections = new String[] { Tasks._ID, Tasks.GUID,
+					Tasks.NAME, Tasks.TYPE, Tasks.FINISH, Tasks.REMARK };
 			return new CursorLoader(this, Tasks.CONTENT_URI, projections, null,
 					null, Tasks.TYPE);
 		}
-		
+
 		throw new IllegalArgumentException("Unknown loader id!");
 	}
 
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-		task_adapter.load_tasks(data);		
+		task_adapter.load_tasks(data);
 	}
 
 	@Override

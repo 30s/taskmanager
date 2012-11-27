@@ -98,7 +98,7 @@ public class Utils {
 		} catch (JSONException e) {
 			ret.put("message", "Decode response error!");
 		} finally {
-			if ( conn != null ) {
+			if (conn != null) {
 				conn.disconnect();
 			}
 		}
@@ -120,8 +120,7 @@ public class Utils {
 		while (!path.equals("null")) {
 			try {
 				URL url = new URL(Preferences.getServer(context) + path);
-				conn = (HttpURLConnection) url
-						.openConnection();
+				conn = (HttpURLConnection) url.openConnection();
 				conn.setRequestMethod("GET");
 				conn.setDoInput(true);
 				conn.setRequestProperty("AUTHORIZATION", "Bearer "
@@ -151,10 +150,10 @@ public class Utils {
 				JSONArray json_array = json.getJSONArray("objects");
 				for (int i = 0; i < json_array.length(); i++) {
 					JSONObject json_task = (JSONObject) json_array.get(i);
-					tasks.add(new Task(json_task.getString("name"), json_task
-							.getString("type").charAt(0), json_task
-							.getBoolean("finish"), json_task
-							.getString("remark")));
+					tasks.add(new Task(json_task.getInt("id"), json_task
+							.getString("name"), json_task.getString("type")
+							.charAt(0), json_task.getBoolean("finish"),
+							json_task.getString("remark")));
 				} // for
 			} catch (MalformedURLException e) {
 				ret.put("message", "URL error!");
@@ -166,7 +165,7 @@ public class Utils {
 				ret.put("message", "JSON error!");
 				path = "null";
 			} finally {
-				if ( conn != null ) {
+				if (conn != null) {
 					conn.disconnect();
 				}
 			}

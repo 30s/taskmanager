@@ -6,12 +6,14 @@ import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class Task {
+	private int guid;
 	private String name;
 	private TaskType type;
 	private Boolean finish;
 	private String remark;
 
-	public Task(String name, char type, Boolean finish, String remark) {
+	public Task(int guid, String name, char type, Boolean finish, String remark) {
+		this.guid = guid;
 		this.name = name;
 		switch (type) {
 		case 'D':
@@ -42,12 +44,17 @@ public class Task {
 				+ TaskContentProvider.AUTHORITY + "/tasks");
 		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.taskmanager.tasks";
 		public static final String ID = "_id";
+		public static final String GUID = "guid";
 		public static final String NAME = "name";
 		public static final String TYPE = "type";
 		public static final String FINISH = "finish";
 		public static final String REMARK = "remark";
 	}
 
+	public int getGuid() {
+		return guid;
+	}
+	
 	public String getName() {
 		return name;
 	}
