@@ -1,9 +1,12 @@
 package com.indax.taskmanager.models;
 
-import com.indax.taskmanager.providers.TaskContentProvider;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import com.indax.taskmanager.providers.TaskContentProvider;
 
 public class Task {
 	private int guid;
@@ -34,6 +37,30 @@ public class Task {
 		}
 		this.finish = finish;
 		this.remark = remark;
+	}
+	
+	public Task(JSONObject json) throws JSONException {
+		this.guid = json.getInt("id");
+		this.name = json.getString("name");
+		switch (json.getString("type").charAt(0)) {
+		case 'D':
+			this.type = TaskType.DAILY;
+			break;
+		case 'W':
+			this.type = TaskType.WEEKLY;
+			break;
+		case 'M':
+			this.type = TaskType.MONTHLY;
+			break;
+		case 'Y':
+			this.type = TaskType.YEARLY;
+			break;
+		default:
+			this.type = TaskType.ETC;
+			break;
+		}
+		this.finish = json.getBoolean("finish");
+		this.remark = json.getString("remark");		
 	}
 
 	public static final class Tasks implements BaseColumns {

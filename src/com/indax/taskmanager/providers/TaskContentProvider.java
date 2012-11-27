@@ -24,6 +24,7 @@ public class TaskContentProvider extends ContentProvider {
 	private static final UriMatcher URI_MATCHER;
 	private static final int TASKS = 1;
 	private static final int TASKS_ID = 2;
+	private static final int TASKS_GUID = 3;
 	private static HashMap<String, String> tasksProjectionMap;
 
 	public static final String AUTHORITY = "com.indax.taskmanager.providers.TaskContentProvider";
@@ -119,6 +120,9 @@ public class TaskContentProvider extends ContentProvider {
 		case TASKS_ID:
 			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();
 			break;
+		case TASKS_GUID:
+			selection = Tasks.GUID + " = " + uri.getLastPathSegment();
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -137,6 +141,9 @@ public class TaskContentProvider extends ContentProvider {
 		case TASKS:
 			count = db.update(TASKS_TABLE_NAME, values, selection, selectionArgs);
 			break;
+		case TASKS_GUID:
+			count = db.update(TASKS_TABLE_NAME, values, Tasks.GUID + " = " + uri.getLastPathSegment(), selectionArgs);
+			break;
 
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
@@ -150,6 +157,7 @@ public class TaskContentProvider extends ContentProvider {
 		URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME, TASKS);
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/#", TASKS_ID);
+		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/guid/#", TASKS_GUID);
 		
 		tasksProjectionMap = new HashMap<String, String>();
 		tasksProjectionMap.put(Tasks.ID, Tasks.ID);

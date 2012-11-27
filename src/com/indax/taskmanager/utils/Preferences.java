@@ -1,6 +1,7 @@
 package com.indax.taskmanager.utils;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 import com.indax.taskmanager.R;
 
@@ -69,9 +70,17 @@ public class Preferences {
 	}
 	
 	public static void setSyncTime(Context context) {
+		TimeZone tz = TimeZone.getDefault();
+		Date now = new Date();
+		int offset = tz.getOffset(now.getTime());		
 		PreferenceManager.getDefaultSharedPreferences(context).edit()
-			.putLong("sync_time", new Date().getTime() / 1000).commit();
+			.putLong("sync_time", (now.getTime() - offset) / 1000).commit();
 	}
+	
+	public static void setSyncTime(Context context, long timestamp) {
+		PreferenceManager.getDefaultSharedPreferences(context).edit()
+			.putLong("sync_time", timestamp).commit();
+	}	
 	
 	public static long getSyncTime(Context context) {
 		return PreferenceManager.getDefaultSharedPreferences(context).getLong(

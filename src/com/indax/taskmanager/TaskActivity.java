@@ -14,6 +14,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.models.Task;
@@ -33,6 +35,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 	private final String TAG = TaskActivity.class.getSimpleName();
 	private ArrayList<Task> tasks;
+	private ArrayList<JSONObject> oplogs;
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
 
@@ -42,6 +45,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		setContentView(R.layout.activity_task);
 
 		tasks = new ArrayList<Task>(20);
+		oplogs = new ArrayList<JSONObject>();
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_adapter = new TaskExpandableListAdapter();
 		lst_task.setAdapter(task_adapter);
@@ -53,6 +57,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 			new GetTask().execute();
 		} else {
 			// sync
+			new SyncTask().execute();
 		}
 	}
 
@@ -74,6 +79,8 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		protected void onPreExecute() {
 			super.onPreExecute();
 			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
+			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
+			txt_loading.setText("Loading...");
 		}
 
 		@Override
@@ -115,15 +122,110 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		}
 	} // GetTask
 
-	private class SyncTask extends AsyncTask<Void, LinearLayout, JSONException> {
+	private class SyncTask extends AsyncTask<Void, LinearLayout, JSONObject> {
 
 		@Override
-		protected JSONException doInBackground(Void... params) {
-			// TODO Auto-generated method stub
-			return null;
+		protected JSONObject doInBackground(Void... params) {
+			return Utils.sync_tasks(getApplicationContext(), oplogs);
 		}
 
-	}
+		@Override
+		protected void onPreExecute() {
+			super.onPreExecute();
+			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
+			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
+			txt_loading.setText("Syncing...");
+		}
+
+		@Override
+		protected void onPostExecute(JSONObject result) {
+			super.onPostExecute(result);
+
+			try {
+				String message = result.getString("message");
+				Log.d(TAG, message);
+				if (message.equals("401")) {
+					String username = Preferences
+							.getRememberedUsername(getBaseContext());
+					String password = Preferences
+							.getRememberedPassword(getBaseContext());
+
+					if (username.length() != 0 && password.length() != 0) {
+						new LoginTask().execute(username, password);
+					} else {
+						startActivity(new Intent(getApplicationContext(),
+								LoginActivity.class));
+					}
+				}
+			} catch (JSONException e) {
+				ContentResolver contentResolver = getContentResolver();
+				for (int i = 0; i < oplogs.size(); i++) {
+					JSONObject log = oplogs.get(i);
+					try {
+						switch (log.getInt("opcode")) {
+						case 1:
+							// add
+							if (log.getString("model").equals(
+									"ax003d.taskmanager.models.Task")) {
+								Task task = new Task(new JSONObject(log.getString("data")));
+								ContentValues values = new ContentValues();
+								values.put(Tasks.GUID, task.getGuid());
+								values.put(Tasks.NAME, task.getName());
+								values.put(Tasks.TYPE, task.getTypeAsString());
+								values.put(Tasks.FINISH, task.getFinish());
+								values.put(Tasks.REMARK, task.getRemark());
+								contentResolver.insert(Tasks.CONTENT_URI,
+										values);
+								Preferences.setSyncTime(
+										getApplicationContext(),
+										log.getLong("timestamp"));
+							}
+							break;
+						case 2:
+							// update
+							if (log.getString("model").equals(
+									"ax003d.taskmanager.models.Task")) {
+								Task task = new Task(new JSONObject(log.getString("data")));
+								ContentValues values = new ContentValues();
+								values.put(Tasks.GUID, task.getGuid());
+								values.put(Tasks.NAME, task.getName());
+								values.put(Tasks.TYPE, task.getTypeAsString());
+								values.put(Tasks.FINISH, task.getFinish());
+								values.put(Tasks.REMARK, task.getRemark());
+								contentResolver.update(Uri.withAppendedPath(
+										Tasks.CONTENT_URI,
+										"/guid/" + task.getGuid()), values,
+										null, null);
+								Preferences.setSyncTime(
+										getApplicationContext(),
+										log.getLong("timestamp"));
+							}
+							break;
+						case 3:
+							// delete
+							if (log.getString("model").equals(
+									"ax003d.taskmanager.models.Task")) {
+								JSONObject ret = new JSONObject(log.getString("data"));
+								contentResolver.delete(Uri.withAppendedPath(
+										Tasks.CONTENT_URI, "/guid/"
+												+ ret.getInt("id")), null,
+										null);
+								Preferences.setSyncTime(
+										getApplicationContext(),
+										log.getLong("timestamp"));
+							}
+							break;
+						default:
+							break;
+						}
+					} catch (JSONException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+			findViewById(R.id.ll_progress).setVisibility(View.GONE);
+		}
+	} // SyncTask
 
 	private class LoginTask extends AsyncTask<String, Void, JSONObject> {
 
