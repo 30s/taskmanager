@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.indax.taskmanager.R;
@@ -174,10 +173,9 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 						R.layout.task_item, null);
 		
 		Task task = getChild(groupPosition, childPosition);
-		CheckBox chk_item = (CheckBox) view.findViewById(R.id.chk_item);
+		TextView txt_task = (TextView) view.findViewById(R.id.txt_task);
 		TextView txt_remark = (TextView) view.findViewById(R.id.txt_remark);
-		chk_item.setChecked(task.getFinish());
-		chk_item.setText(task.getName());
+		txt_task.setText(task.getName());
 		txt_remark.setText(task.getRemark());
 		
 		return view;
@@ -185,7 +183,7 @@ public class TaskExpandableListAdapter extends BaseExpandableListAdapter {
 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) {
-		return false;
+		return true;
 	}
 
 }

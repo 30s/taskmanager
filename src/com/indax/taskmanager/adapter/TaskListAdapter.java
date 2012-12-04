@@ -6,7 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.CheckBox;
+import android.widget.TextView;
 
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.Task;
@@ -49,9 +49,8 @@ public class TaskListAdapter extends BaseAdapter {
 						R.layout.task_item, null);
 		
 		Task task = tasks.get(position);
-		CheckBox chk_item = (CheckBox) view.findViewById(R.id.chk_item);				
-		chk_item.setChecked(task.getFinish());
-		chk_item.setText(task.getName());
+		TextView txt_task = (TextView) view.findViewById(R.id.txt_task);				
+		txt_task.setText(task.getName());
 		
 		return view;
 	}

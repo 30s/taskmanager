@@ -4,17 +4,19 @@
     android:layout_height="wrap_content"
     android:orientation="vertical" >
 
-    <CheckBox
-        android:id="@+id/chk_item"
+    <TextView
+        android:id="@+id/txt_task"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
+        android:paddingLeft="18dp"
+        android:textColor="#333333"
         android:textSize="18dp" />
 
     <TextView
         android:id="@+id/txt_remark"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="36dp"
+        android:paddingLeft="18dp"
         android:textSize="12dp" />
 
 </LinearLayout>

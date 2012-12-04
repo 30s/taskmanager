@@ -21,8 +21,10 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
+import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
@@ -32,7 +34,7 @@ import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
 
 @TargetApi(11)
-public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, OnChildClickListener {
 
 	// private final String TAG = TaskActivity.class.getSimpleName();
 	private TaskExpandableListAdapter task_adapter;
@@ -49,6 +51,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_adapter = new TaskExpandableListAdapter();
 		lst_task.setAdapter(task_adapter);
+		lst_task.setOnChildClickListener(this);
 
 		getLoaderManager().initLoader(TASK_LOADER, null, this);
 
@@ -307,5 +310,13 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		task_adapter.load_tasks(null);
+	}
+
+	@Override
+	public boolean onChildClick(ExpandableListView parent, View v,
+			int groupPosition, int childPosition, long id) {
+		// TODO Auto-generated method stub
+		Toast.makeText(getApplicationContext(), groupPosition + "-" + childPosition, Toast.LENGTH_SHORT).show();
+		return false;
 	}
 }
