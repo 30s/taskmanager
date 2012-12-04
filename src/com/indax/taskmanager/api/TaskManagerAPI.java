@@ -24,7 +24,7 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 		super(context);
 		this.context = context;
 	}
-	
+
 	public static ITaskManagerAPI getInstance(Context context) {
 		if (INSTANCE == null) {
 			INSTANCE = new TaskManagerAPI(context);
@@ -35,13 +35,13 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	@Override
 	public ApiResponse execute(ApiRequest request, ProgressListener listener)
 			throws ClientProtocolException, IOException {
-		if ( !request.getPath().equals("/v1/account/login/") ) {
+		if (!request.getPath().equals("/v1/account/login/")) {
 			request.addHeader("AUTHORIZATION",
-					"Bearer " + Preferences.getToken(context));	
+					"Bearer " + Preferences.getToken(context));
 		}
 		return super.execute(request, listener);
 	}
-	
+
 	@Override
 	public JSONObject account_login(String username, String password,
 			ProgressListener progressListener) throws ClientProtocolException,
@@ -56,16 +56,27 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
-	
+
 	@Override
 	public JSONObject task(String next, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException {
-		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+		ApiRequest request = new ApiRequest(ApiRequest.GET,
 				next == null ? "/v1/task/" : next);
 
 		ApiResponse response = execute(request, progressListener);
 
 		return new JSONObject(response.getContentAsString());
-	}	
+	}
 
+	@Override
+	public JSONObject oplog(String next, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException {
+		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+				next == null ? "/v1/oplog/" : next);
+		request.addParameter("timestamp__gt", Preferences.getSyncTime(context) + "");
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }

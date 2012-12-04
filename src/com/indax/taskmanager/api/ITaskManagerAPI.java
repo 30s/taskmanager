@@ -15,4 +15,7 @@ public interface ITaskManagerAPI {
 
 	JSONObject task(String next, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException;
+	
+	JSONObject oplog(String next, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException;
 }

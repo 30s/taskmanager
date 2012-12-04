@@ -1,7 +1,6 @@
 package com.indax.taskmanager;
 
 import java.io.IOException;
-import java.util.ArrayList;
 
 import org.apache.http.client.ClientProtocolException;
 import org.json.JSONArray;
@@ -14,13 +13,11 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -33,25 +30,22 @@ import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.Task;
 import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
-import com.indax.taskmanager.utils.Utils;
 
 @TargetApi(11)
 public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
-	private final String TAG = TaskActivity.class.getSimpleName();
-	private ArrayList<JSONObject> oplogs;
+	// private final String TAG = TaskActivity.class.getSimpleName();
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
 	private ITaskManagerAPI api_client;
-	
+
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_task);
 
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
-		
-		oplogs = new ArrayList<JSONObject>();
+
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_adapter = new TaskExpandableListAdapter();
 		lst_task.setAdapter(task_adapter);
@@ -79,7 +73,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		protected JSONObject doInBackground(String... params) {
 			JSONObject ret = null;
 			try {
-				if ( params.length == 0 ) {
+				if (params.length == 0) {
 					ret = api_client.task(null, null);
 				} else {
 					ret = api_client.task(params[0], null);
@@ -106,7 +100,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		protected void onPostExecute(JSONObject result) {
 			super.onPostExecute(result);
 
-			if ( result != null && result.has("objects")) {
+			if (result != null && result.has("objects")) {
 				ContentResolver contentResolver = getContentResolver();
 				JSONArray jTasks;
 				try {
@@ -127,14 +121,14 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 					e.printStackTrace();
 				}
 			}
-			
-			if ( result != null && result.has("meta") ) {
+
+			if (result != null && result.has("meta")) {
 				String next;
 				try {
 					next = result.getJSONObject("meta").getString("next");
-					if ( !next.equals("null") ) {
+					if (!next.equals("null")) {
 						new GetTask().execute(next);
-					}					
+					}
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -142,11 +136,24 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		} // onPostExecute
 	} // GetTask
 
-	private class SyncTask extends AsyncTask<Void, LinearLayout, JSONObject> {
+	private class SyncTask extends AsyncTask<String, LinearLayout, JSONObject> {
 
 		@Override
-		protected JSONObject doInBackground(Void... params) {
-			return Utils.sync_tasks(getApplicationContext(), oplogs);
+		protected JSONObject doInBackground(String... params) {
+			try {
+				if (params.length == 0) {
+					return api_client.oplog(null, null);
+				} else {
+					return api_client.oplog(params[0], null);
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return null;
 		}
 
 		@Override
@@ -161,33 +168,19 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		protected void onPostExecute(JSONObject result) {
 			super.onPostExecute(result);
 
-			try {
-				String message = result.getString("message");
-				Log.d(TAG, message);
-				if (message.equals("401")) {
-					String username = Preferences
-							.getRememberedUsername(getBaseContext());
-					String password = Preferences
-							.getRememberedPassword(getBaseContext());
-
-					if (username.length() != 0 && password.length() != 0) {
-						new LoginTask().execute(username, password);
-					} else {
-						startActivity(new Intent(getApplicationContext(),
-								LoginActivity.class));
-					}
-				}
-			} catch (JSONException e) {
+			if (result != null && result.has("objects")) {
 				ContentResolver contentResolver = getContentResolver();
-				for (int i = 0; i < oplogs.size(); i++) {
-					JSONObject log = oplogs.get(i);
-					try {
+				try {
+					JSONArray jOplogs = result.getJSONArray("objects");
+					for (int i = 0; i < jOplogs.length(); i++) {
+						JSONObject log = jOplogs.getJSONObject(i);
 						switch (log.getInt("opcode")) {
 						case 1:
 							// add
 							if (log.getString("model").equals(
 									"ax003d.taskmanager.models.Task")) {
-								Task task = new Task(new JSONObject(log.getString("data")));
+								Task task = new Task(new JSONObject(
+										log.getString("data")));
 								ContentValues values = new ContentValues();
 								values.put(Tasks.GUID, task.getGuid());
 								values.put(Tasks.NAME, task.getName());
@@ -205,7 +198,8 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 							// update
 							if (log.getString("model").equals(
 									"ax003d.taskmanager.models.Task")) {
-								Task task = new Task(new JSONObject(log.getString("data")));
+								Task task = new Task(new JSONObject(
+										log.getString("data")));
 								ContentValues values = new ContentValues();
 								values.put(Tasks.GUID, task.getGuid());
 								values.put(Tasks.NAME, task.getName());
@@ -225,10 +219,11 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 							// delete
 							if (log.getString("model").equals(
 									"ax003d.taskmanager.models.Task")) {
-								JSONObject ret = new JSONObject(log.getString("data"));
+								JSONObject ret = new JSONObject(
+										log.getString("data"));
 								contentResolver.delete(Uri.withAppendedPath(
-										Tasks.CONTENT_URI, "/guid/"
-												+ ret.getInt("id")), null,
+										Tasks.CONTENT_URI,
+										"/guid/" + ret.getInt("id")), null,
 										null);
 								Preferences.setSyncTime(
 										getApplicationContext(),
@@ -237,48 +232,60 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 							break;
 						default:
 							break;
-						}
-					} catch (JSONException e1) {
-						e1.printStackTrace();
-					}
+						} // endswitch
+					} // endfor 
+					findViewById(R.id.ll_progress).setVisibility(View.GONE);
+				} catch (JSONException e1) {
+					e1.printStackTrace();
 				}
-			}
-			findViewById(R.id.ll_progress).setVisibility(View.GONE);
-		}
+			} // endif
+			
+			if ( result != null && result.has("meta") ) {
+				String next;
+				try {
+					next = result.getJSONObject("meta").getString("next");
+					if ( !next.equals("null") ) {
+						new SyncTask().execute(next);
+					}					
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			} // endif
+		} // onPostExecute
 	} // SyncTask
 
-	private class LoginTask extends AsyncTask<String, Void, JSONObject> {
-
-		@Override
-		protected JSONObject doInBackground(String... params) {
-			JSONObject ret = null;
-			try {
-				return api_client.account_login(params[0], params[1], null);
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			} catch (JSONException e) {
-				e.printStackTrace();
-			}
-			return ret;
-		}
-
-		@Override
-		protected void onPostExecute(JSONObject ret) {
-			super.onPostExecute(ret);
-
-			if ( ret != null && ret.has("token")) {
-				new GetTask().execute();
-			} else {
-				Preferences.expireToken(getApplicationContext());
-				startActivity(new Intent(getApplicationContext(),
-						LoginActivity.class));
-				TaskActivity.this.finish();
-			}
-		}
-
-	} // LoginTask
+//	private class LoginTask extends AsyncTask<String, Void, JSONObject> {
+//
+//		@Override
+//		protected JSONObject doInBackground(String... params) {
+//			JSONObject ret = null;
+//			try {
+//				return api_client.account_login(params[0], params[1], null);
+//			} catch (ClientProtocolException e) {
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			} catch (JSONException e) {
+//				e.printStackTrace();
+//			}
+//			return ret;
+//		}
+//
+//		@Override
+//		protected void onPostExecute(JSONObject ret) {
+//			super.onPostExecute(ret);
+//
+//			if (ret != null && ret.has("token")) {
+//				new GetTask().execute();
+//			} else {
+//				Preferences.expireToken(getApplicationContext());
+//				startActivity(new Intent(getApplicationContext(),
+//						LoginActivity.class));
+//				TaskActivity.this.finish();
+//			}
+//		}
+//
+//	} // LoginTask
 
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
