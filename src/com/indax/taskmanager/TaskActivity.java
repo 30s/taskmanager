@@ -1,7 +1,9 @@
 package com.indax.taskmanager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
+import org.apache.http.client.ClientProtocolException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,6 +27,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
+import com.indax.taskmanager.api.ITaskManagerAPI;
+import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.Task;
 import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
@@ -38,12 +42,15 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 	private ArrayList<JSONObject> oplogs;
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
-
+	private ITaskManagerAPI api_client;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_task);
 
+		api_client = TaskManagerAPI.getInstance(getApplicationContext());
+		
 		tasks = new ArrayList<Task>(20);
 		oplogs = new ArrayList<JSONObject>();
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
@@ -231,14 +238,24 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 		@Override
 		protected JSONObject doInBackground(String... params) {
-			return Utils.login(getApplicationContext(), params[0], params[1]);
+			JSONObject ret = null;
+			try {
+				return api_client.account_login(params[0], params[1], null);
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return ret;
 		}
 
 		@Override
 		protected void onPostExecute(JSONObject ret) {
 			super.onPostExecute(ret);
 
-			if (ret.has("token")) {
+			if ( ret != null && ret.has("token")) {
 				new GetTask().execute();
 			} else {
 				Preferences.expireToken(getApplicationContext());
