@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.apache.http.client.ClientProtocolException;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,7 +39,6 @@ import com.indax.taskmanager.utils.Utils;
 public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 	private final String TAG = TaskActivity.class.getSimpleName();
-	private ArrayList<Task> tasks;
 	private ArrayList<JSONObject> oplogs;
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
@@ -51,7 +51,6 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
 		
-		tasks = new ArrayList<Task>(20);
 		oplogs = new ArrayList<JSONObject>();
 		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_adapter = new TaskExpandableListAdapter();
@@ -74,12 +73,25 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		return true;
 	}
 
-	private class GetTask extends AsyncTask<Void, LinearLayout, JSONObject> {
+	private class GetTask extends AsyncTask<String, LinearLayout, JSONObject> {
 
 		@Override
-		protected JSONObject doInBackground(Void... params) {
-			return Utils.load_task_list(getApplicationContext(),
-					TaskActivity.this.tasks);
+		protected JSONObject doInBackground(String... params) {
+			JSONObject ret = null;
+			try {
+				if ( params.length == 0 ) {
+					ret = api_client.task(null, null);
+				} else {
+					ret = api_client.task(params[0], null);
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			return ret;
 		}
 
 		@Override
@@ -94,39 +106,40 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor> {
 		protected void onPostExecute(JSONObject result) {
 			super.onPostExecute(result);
 
-			try {
-				String message = result.getString("message");
-				Log.d(TAG, message);
-				if (message.equals("401")) {
-					String username = Preferences
-							.getRememberedUsername(getBaseContext());
-					String password = Preferences
-							.getRememberedPassword(getBaseContext());
-
-					if (username.length() != 0 && password.length() != 0) {
-						new LoginTask().execute(username, password);
-					} else {
-						startActivity(new Intent(getApplicationContext(),
-								LoginActivity.class));
-					}
-				}
-			} catch (JSONException e) {
+			if ( result != null && result.has("objects")) {
 				ContentResolver contentResolver = getContentResolver();
-				Task task;
-				for (int i = 0; i < TaskActivity.this.tasks.size(); i++) {
-					task = TaskActivity.this.tasks.get(i);
-					ContentValues values = new ContentValues();
-					values.put(Tasks.GUID, task.getGuid());
-					values.put(Tasks.NAME, task.getName());
-					values.put(Tasks.TYPE, task.getTypeAsString());
-					values.put(Tasks.FINISH, task.getFinish());
-					values.put(Tasks.REMARK, task.getRemark());
-					contentResolver.insert(Tasks.CONTENT_URI, values);
+				JSONArray jTasks;
+				try {
+					jTasks = result.getJSONArray("objects");
+					for (int i = 0; i < jTasks.length(); i++) {
+						Task task = new Task(jTasks.getJSONObject(i));
+						ContentValues values = new ContentValues();
+						values.put(Tasks.GUID, task.getGuid());
+						values.put(Tasks.NAME, task.getName());
+						values.put(Tasks.TYPE, task.getTypeAsString());
+						values.put(Tasks.FINISH, task.getFinish());
+						values.put(Tasks.REMARK, task.getRemark());
+						contentResolver.insert(Tasks.CONTENT_URI, values);
+					}
+					Preferences.setSyncTime(getApplicationContext());
+					findViewById(R.id.ll_progress).setVisibility(View.GONE);
+				} catch (JSONException e) {
+					e.printStackTrace();
 				}
-				Preferences.setSyncTime(getApplicationContext());
 			}
-			findViewById(R.id.ll_progress).setVisibility(View.GONE);
-		}
+			
+			if ( result != null && result.has("meta") ) {
+				String next;
+				try {
+					next = result.getJSONObject("meta").getString("next");
+					if ( !next.equals("null") ) {
+						new GetTask().execute(next);
+					}					
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+		} // onPostExecute
 	} // GetTask
 
 	private class SyncTask extends AsyncTask<Void, LinearLayout, JSONObject> {

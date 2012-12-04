@@ -47,7 +47,7 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException {
 		ApiRequest request = new ApiRequest(ApiRequest.POST,
-				"/v1/account/login/", ApiRequest.UPLOAD);
+				"/v1/account/login/");
 		request.addParameter("username", username);
 		request.addParameter("password", password);
 		request.addParameter("apikey", context.getString(R.string.apikey));
@@ -56,5 +56,16 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+	
+	@Override
+	public JSONObject task(String next, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException {
+		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+				next == null ? "/v1/task/" : next);
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}	
 
 }

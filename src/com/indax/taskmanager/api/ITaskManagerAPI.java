@@ -12,4 +12,7 @@ public interface ITaskManagerAPI {
 	JSONObject account_login(String username, String password,
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException;
+
+	JSONObject task(String next, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException;
 }

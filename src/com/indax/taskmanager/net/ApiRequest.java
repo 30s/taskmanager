@@ -24,14 +24,6 @@ public class ApiRequest {
     private final List<Parameter<?>> mParameters;
     private final List<NameValuePair> mHeaders;
     private boolean mIsMime;
-    private final int mServerType;
-    
-    public int getServerType() {
-		return mServerType;
-	}
-
-	public static final int API = 1;
-    public static final int UPLOAD = 2;
 
     /**
      * Creates a basic ApiRequest
@@ -40,7 +32,7 @@ public class ApiRequest {
      *            POST, PUT or DELETE.
      * @param path Path of the url. Must start with '/'.
      */
-    public ApiRequest(int requestMethod, String path, int serverType) {
+    public ApiRequest(int requestMethod, String path) {
         if (!path.startsWith("/")) {
             throw new IllegalArgumentException("Parameter 'path' must start with '/'.");
         }
@@ -54,12 +46,7 @@ public class ApiRequest {
         mParameters = new ArrayList<Parameter<?>>();
         mHeaders = new ArrayList<NameValuePair>();
         mIsMime = false;
-        mServerType = serverType;
-    }
-    
-    public ApiRequest(int requestMethod, String path) {
-    	this(requestMethod, path, API);
-    }
+    }    
 
     /**
      * @return Path of the request
