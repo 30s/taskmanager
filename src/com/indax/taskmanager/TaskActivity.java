@@ -13,6 +13,7 @@ import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -24,7 +25,6 @@ import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
@@ -314,9 +314,13 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, O
 
 	@Override
 	public boolean onChildClick(ExpandableListView parent, View v,
-			int groupPosition, int childPosition, long id) {
-		// TODO Auto-generated method stub
-		Toast.makeText(getApplicationContext(), groupPosition + "-" + childPosition, Toast.LENGTH_SHORT).show();
+			int groupPosition, int childPosition, long id) {	
+		Task task = task_adapter.getChild(groupPosition, childPosition);
+		Intent intent = new Intent(getApplicationContext(), ExecuteLogActivity.class);
+		intent.putExtra("task_name", task.getName());
+		intent.putExtra("task_guid", task.getGuid() + "");
+		startActivity(intent);
+		
 		return false;
 	}
 }

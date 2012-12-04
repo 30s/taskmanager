@@ -1,7 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.indax.taskmanager"
     android:versionCode="1"
-    android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
+    android:versionName="1.0" >
 
     <uses-sdk
         android:minSdkVersion="8"
@@ -27,8 +28,17 @@
             android:name=".TaskActivity"
             android:label="@string/title_activity_task" >
         </activity>
-        <provider android:name="com.indax.taskmanager.providers.TaskContentProvider" android:authorities="com.indax.taskmanager.providers.TaskContentProvider" tools:ignore="ExportedContentProvider">            
+
+        <provider
+            android:name="com.indax.taskmanager.providers.TaskContentProvider"
+            android:authorities="com.indax.taskmanager.providers.TaskContentProvider"
+            tools:ignore="ExportedContentProvider" >
         </provider>
+
+        <activity
+            android:name=".ExecuteLogActivity"
+            android:label="@string/title_activity_execute_log" >
+        </activity>
     </application>
 
 </manifest>

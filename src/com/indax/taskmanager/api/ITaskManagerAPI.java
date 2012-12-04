@@ -15,7 +15,11 @@ public interface ITaskManagerAPI {
 
 	JSONObject task(String next, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException;
-	
+
 	JSONObject oplog(String next, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException;
+
+	JSONObject executelog(String next, String task_guid,
+			ProgressListener progressListener) throws ClientProtocolException,
+			IOException, JSONException;
 }

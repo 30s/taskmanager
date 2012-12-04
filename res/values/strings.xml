@@ -3,7 +3,6 @@
     <string name="production_server">http://ax003d.sinaapp.com</string>
     <string name="debug_server">http://192.168.1.123:8001</string>
     <string name="apikey">d09f0e36753b2299c7cfd3d488b701</string>
-    
     <string name="app_name">taskmanager</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_login">LoginActivity</string>
@@ -15,5 +14,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_task">TaskActivity</string>
     <string name="loading">Loading</string>
+    <string name="title_activity_execute_log">ExecuteLogActivity</string>
 
 </resources>

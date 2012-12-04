@@ -79,4 +79,17 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+
+	@Override
+	public JSONObject executelog(String next, String task_guid,
+			ProgressListener progressListener) throws ClientProtocolException,
+			IOException, JSONException {
+		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+				next == null ? "/v1/executelog/" : next);
+		request.addParameter("task__exact", task_guid);
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }
