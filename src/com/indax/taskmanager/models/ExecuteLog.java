@@ -3,6 +3,11 @@ package com.indax.taskmanager.models;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.net.Uri;
+import android.provider.BaseColumns;
+
+import com.indax.taskmanager.providers.TaskContentProvider;
+
 public class ExecuteLog {
 	private String logTime;
 	private String remark;
@@ -19,6 +24,19 @@ public class ExecuteLog {
 			e.printStackTrace();
 		}
 	}
+	
+	public static final class ExecuteLogs implements BaseColumns {
+		private ExecuteLogs() {
+		}
+
+		public static final Uri CONTENT_URI = Uri.parse("content://"
+				+ TaskContentProvider.AUTHORITY + "/executelogs");
+		public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.taskmanager.executelogs";
+		public static final String ID = "_id";
+		public static final String TASK = "task";
+		public static final String LOG_TIME = "log_time";
+		public static final String REMARK = "remark";
+	}	
 
 	public String getLogTime() {
 		return logTime;

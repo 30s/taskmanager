@@ -14,25 +14,33 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
+import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
 import com.indax.taskmanager.models.Task.Tasks;
+import com.indax.taskmanager.utils.Preferences;
 
 public class TaskContentProvider extends ContentProvider {
 
 	private static final String DATABASE_NAME = "taskmanager.db";
-	private static final int DATABASE_VERSION = 1;
+	private static final int DATABASE_VERSION = 2;
 	private static final String TASKS_TABLE_NAME = "tasks";
+	private static final String EXECUTELOG_TABLE_NAME = "executelogs";
 	private static final UriMatcher URI_MATCHER;
 	private static final int TASKS = 1;
 	private static final int TASKS_ID = 2;
 	private static final int TASKS_GUID = 3;
+	private static final int EXECUTELOGS = 4;
 	private static HashMap<String, String> tasksProjectionMap;
+	private static HashMap<String, String> executelogsProjectionMap;
 
 	public static final String AUTHORITY = "com.indax.taskmanager.providers.TaskContentProvider";
 
 	private static class DatabaseHelper extends SQLiteOpenHelper {
+		
+		private Context context;
 
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
+			this.context = context;
 		}
 
 		@Override
@@ -43,12 +51,19 @@ public class TaskContentProvider extends ContentProvider {
 					+ Tasks.NAME + " VARCHAR(256), " + Tasks.TYPE
 					+ " VARCHAR(128), " + Tasks.FINISH + " INTEGER, "
 					+ Tasks.REMARK + " TEXT" + " );");
+			db.execSQL("CREATE TABLE " + EXECUTELOG_TABLE_NAME + " ("
+					+ ExecuteLogs.ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
+					+ ExecuteLogs.TASK + " INTEGER, "
+					+ ExecuteLogs.LOG_TIME + " INTEGER, "
+					+ ExecuteLogs.REMARK + " TEXT" + " );");
 		}
 
 		@Override
 		public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 			db.execSQL("DROP TABLE IF EXISTS " + TASKS_TABLE_NAME);
+			db.execSQL("DROP TABLE IF EXISTS " + EXECUTELOG_TABLE_NAME);
 			onCreate(db);
+			Preferences.setSyncTime(context, 0);
 		}
 
 	} // DatabaseHelper
@@ -96,17 +111,29 @@ public class TaskContentProvider extends ContentProvider {
 
 	@Override
 	public Uri insert(Uri uri, ContentValues values) {
-		if ( URI_MATCHER.match(uri) != TASKS ) {
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
+		SQLiteDatabase db = db_helper.getWritableDatabase();		
+		long row_id;
 		
-		SQLiteDatabase db = db_helper.getWritableDatabase();
-		long row_id = db.insert(TASKS_TABLE_NAME, Tasks.NAME, values);
-		if ( row_id > 0 ) {
-			Uri task_uri = ContentUris.withAppendedId(Tasks.CONTENT_URI, row_id);
-			getContext().getContentResolver().notifyChange(task_uri, null);
-			return task_uri;
-		}
+		switch ( URI_MATCHER.match(uri) ) {
+		case TASKS:
+			row_id = db.insert(TASKS_TABLE_NAME, Tasks.NAME, values);
+			if ( row_id > 0 ) {
+				Uri task_uri = ContentUris.withAppendedId(Tasks.CONTENT_URI, row_id);
+				getContext().getContentResolver().notifyChange(task_uri, null);
+				return task_uri;
+			}			
+			break;
+		case EXECUTELOGS:
+			row_id = db.insert(EXECUTELOG_TABLE_NAME, ExecuteLogs.REMARK, values);
+			if ( row_id > 0 ) {
+				Uri log_uri = ContentUris.withAppendedId(ExecuteLogs.CONTENT_URI, row_id);
+				getContext().getContentResolver().notifyChange(log_uri, null);
+				return log_uri;
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI " + uri);
+		}		
 		
 		throw new SQLException("Failed to insert row into " + uri);
 	} // insert
@@ -158,6 +185,7 @@ public class TaskContentProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME, TASKS);
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/#", TASKS_ID);
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/guid/#", TASKS_GUID);
+		URI_MATCHER.addURI(AUTHORITY, EXECUTELOG_TABLE_NAME, EXECUTELOGS);
 		
 		tasksProjectionMap = new HashMap<String, String>();
 		tasksProjectionMap.put(Tasks.ID, Tasks.ID);
@@ -166,5 +194,11 @@ public class TaskContentProvider extends ContentProvider {
 		tasksProjectionMap.put(Tasks.TYPE, Tasks.TYPE);
 		tasksProjectionMap.put(Tasks.FINISH, Tasks.FINISH);
 		tasksProjectionMap.put(Tasks.REMARK, Tasks.REMARK);
+		
+		executelogsProjectionMap = new HashMap<String, String>();
+		executelogsProjectionMap.put(ExecuteLogs.ID, ExecuteLogs.ID);
+		executelogsProjectionMap.put(ExecuteLogs.TASK, ExecuteLogs.TASK);
+		executelogsProjectionMap.put(ExecuteLogs.LOG_TIME, ExecuteLogs.LOG_TIME);
+		executelogsProjectionMap.put(ExecuteLogs.REMARK, ExecuteLogs.REMARK);
 	}
 }
