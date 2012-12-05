@@ -7,6 +7,30 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 		/>
+    
+    <EditText android:id="@+id/edit_log"
+        android:singleLine="false"
+        android:minLines="3"
+        android:lines="5"
+        android:maxLines="8"
+        android:scrollbars="vertical"
+        android:inputType="textMultiLine"
+        android:gravity="top|left"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"        
+        android:hint="@string/hint_write_log"
+        />
+    
+    <Button android:id="@+id/btn_add_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_add_log"/>
+    
+    <ListView android:id="@+id/lst_lcl_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        
+    </ListView>
 
     <ListView android:id="@+id/lst_exec_log"
         android:layout_width="match_parent"
