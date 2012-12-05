@@ -34,13 +34,10 @@ public class TaskContentProvider extends ContentProvider {
 
 	public static final String AUTHORITY = "com.indax.taskmanager.providers.TaskContentProvider";
 
-	private static class DatabaseHelper extends SQLiteOpenHelper {
-		
-		private Context context;
+	private static class DatabaseHelper extends SQLiteOpenHelper {		
 
 		public DatabaseHelper(Context context) {
 			super(context, DATABASE_NAME, null, DATABASE_VERSION);
-			this.context = context;
 		}
 
 		@Override
@@ -63,7 +60,6 @@ public class TaskContentProvider extends ContentProvider {
 			db.execSQL("DROP TABLE IF EXISTS " + TASKS_TABLE_NAME);
 			db.execSQL("DROP TABLE IF EXISTS " + EXECUTELOG_TABLE_NAME);
 			onCreate(db);
-			Preferences.setSyncTime(context, 0);
 		}
 
 	} // DatabaseHelper
