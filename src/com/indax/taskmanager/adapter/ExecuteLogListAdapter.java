@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.ExecuteLog;
 
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +46,7 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 		TextView txt_log_time = (TextView) convertView.findViewById(R.id.txt_log_time);
 		TextView txt_remark = (TextView) convertView.findViewById(R.id.txt_remark);
 		txt_log_time.setText(log.getLogTime());
-		txt_remark.setText(log.getRemark());
+		txt_remark.setText(Html.fromHtml(log.getRemark()));
 		
 		return convertView;
 	}
