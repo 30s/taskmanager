@@ -92,4 +92,20 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+
+	@Override
+	public JSONObject executelog_insert(String task_guid, String log_time,
+			String remark, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException {
+		
+		ApiRequest request = new ApiRequest(ApiRequest.POST,
+				"/v1/executelog/insert/");
+		request.addParameter("task", task_guid);
+		request.addParameter("log_time", log_time);
+		request.addParameter("remark", remark);
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }

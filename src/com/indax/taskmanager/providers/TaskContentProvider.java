@@ -16,7 +16,6 @@ import android.net.Uri;
 
 import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
 import com.indax.taskmanager.models.Task.Tasks;
-import com.indax.taskmanager.utils.Preferences;
 
 public class TaskContentProvider extends ContentProvider {
 

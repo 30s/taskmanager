@@ -28,6 +28,7 @@ import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.ExecuteLog;
 import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
+import com.indax.taskmanager.utils.Utils;
 
 public class ExecuteLogActivity extends Activity implements OnClickListener {
 
@@ -107,6 +108,49 @@ public class ExecuteLogActivity extends Activity implements OnClickListener {
 		}
 	}
 
+	private class PostOrCacheLogTask extends AsyncTask<String, Void, Boolean> {
+
+		@Override
+		protected Boolean doInBackground(String... params) {
+			assert (params.length == 2);
+			String log_time = params[0];
+			String remark = params[1];
+			try {
+				if ( Utils.isNetworkAvailable(getApplicationContext()) ) { 
+					JSONObject ret = api_client.executelog_insert(task_guid, log_time, remark, null);
+					if ( ret.has("status") ) {						
+						return true;
+					}
+				}
+			} catch (ClientProtocolException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			
+			ContentResolver contentResolver = getContentResolver();
+			ContentValues values = new ContentValues();
+			values.put(ExecuteLogs.TASK, Integer.parseInt(task_guid));
+			values.put(ExecuteLogs.LOG_TIME, Long.parseLong(log_time));
+			values.put(ExecuteLogs.REMARK, remark);
+			contentResolver.insert(ExecuteLogs.CONTENT_URI, values);
+			
+			return false;
+		}
+		
+		@Override
+		protected void onPostExecute(Boolean result) {			
+			super.onPostExecute(result);
+			if ( result ) {
+				Toast.makeText(getApplicationContext(), "Execute log post OK!", Toast.LENGTH_SHORT).show();
+			} else {
+				Toast.makeText(getApplicationContext(), "Execute log saved!", Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+	
 	@Override
 	public void onClick(View v) {
 		if ( v.getId() == R.id.btn_add_log ) {
@@ -114,17 +158,9 @@ public class ExecuteLogActivity extends Activity implements OnClickListener {
 			Date now = new Date();
 			int offset = tz.getOffset(now.getTime());
 			long log_time = (now.getTime() - offset) / 1000;
-			String remark = edit_log.getText().toString();
+			String remark = edit_log.getText().toString();						
 			
-			ContentResolver contentResolver = getContentResolver();
-			ContentValues values = new ContentValues();
-			values.put(ExecuteLogs.TASK, Integer.parseInt(task_guid));
-			values.put(ExecuteLogs.LOG_TIME, log_time);
-			values.put(ExecuteLogs.REMARK, remark);
-			contentResolver.insert(ExecuteLogs.CONTENT_URI, values);
-			
-			Toast.makeText(v.getContext(), "Execute log saved!", Toast.LENGTH_SHORT).show();
-			edit_log.setText("");
+			new PostOrCacheLogTask().execute(log_time + "", remark);
 		}
 	}
 }
