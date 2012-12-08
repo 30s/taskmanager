@@ -9,6 +9,7 @@ import android.provider.BaseColumns;
 import com.indax.taskmanager.providers.TaskContentProvider;
 
 public class ExecuteLog {
+	private long id;
 	private String logTime;
 	private String remark;
 	
@@ -18,6 +19,7 @@ public class ExecuteLog {
 
 	public ExecuteLog(JSONObject jsonObject) {
 		try {
+			this.id = -1;
 			setLogTime(jsonObject.getString("log_time"));
 			setRemark(jsonObject.getString("remark"));
 		} catch (JSONException e) {
@@ -25,7 +27,8 @@ public class ExecuteLog {
 		}
 	}
 	
-	public ExecuteLog(String log_time, String remark) {
+	public ExecuteLog(long id, String log_time, String remark) {
+		this.id = id;
 		setLogTime(log_time);
 		setRemark(remark);
 	}
@@ -57,5 +60,9 @@ public class ExecuteLog {
 
 	public void setRemark(String remark) {
 		this.remark = remark;
+	}
+
+	public long getID() {
+		return id;
 	}
 }

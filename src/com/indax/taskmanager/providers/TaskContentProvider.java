@@ -28,6 +28,7 @@ public class TaskContentProvider extends ContentProvider {
 	private static final int TASKS_ID = 2;
 	private static final int TASKS_GUID = 3;
 	private static final int EXECUTELOGS = 4;
+	private static final int EXECUTELOGS_ID = 5;
 	private static HashMap<String, String> tasksProjectionMap;
 	private static HashMap<String, String> executelogsProjectionMap;
 
@@ -142,20 +143,28 @@ public class TaskContentProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		SQLiteDatabase db = db_helper.getWritableDatabase();
+		String table_name;
 		switch ( URI_MATCHER.match(uri) ) {
 		case TASKS:
+			table_name = TASKS_TABLE_NAME;
 			break;
 		case TASKS_ID:
+			table_name = TASKS_TABLE_NAME;
 			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();
 			break;
 		case TASKS_GUID:
+			table_name = TASKS_TABLE_NAME;
 			selection = Tasks.GUID + " = " + uri.getLastPathSegment();
+			break;
+		case EXECUTELOGS_ID:
+			table_name = EXECUTELOG_TABLE_NAME;
+			selection = ExecuteLogs.ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		
-		int count = db.delete(TASKS_TABLE_NAME, selection, selectionArgs);
+		int count = db.delete(table_name, selection, selectionArgs);
 		getContext().getContentResolver().notifyChange(uri, null);
 		return count;
 	} // delete
@@ -187,6 +196,7 @@ public class TaskContentProvider extends ContentProvider {
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/#", TASKS_ID);
 		URI_MATCHER.addURI(AUTHORITY, TASKS_TABLE_NAME + "/guid/#", TASKS_GUID);
 		URI_MATCHER.addURI(AUTHORITY, EXECUTELOG_TABLE_NAME, EXECUTELOGS);
+		URI_MATCHER.addURI(AUTHORITY, EXECUTELOG_TABLE_NAME + "/#", EXECUTELOGS_ID);
 		
 		tasksProjectionMap = new HashMap<String, String>();
 		tasksProjectionMap.put(Tasks.ID, Tasks.ID);

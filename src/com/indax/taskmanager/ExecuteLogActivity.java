@@ -20,6 +20,7 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
@@ -67,7 +68,7 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 
 		ListView lst_exec_log = (ListView) findViewById(R.id.lst_exec_log);
 		net_adapter = new ExecuteLogListAdapter();
-		lst_exec_log.setAdapter(net_adapter);		
+		lst_exec_log.setAdapter(net_adapter);
 
 		edit_log = (EditText) findViewById(R.id.edit_log);
 
@@ -212,16 +213,18 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 		cached_adapter.load_cursor(null);
 	}
 
-	private void showDeleteCachedLogDialog(ExecuteLog log) {
+	private void showDeleteCachedLogDialog(final ExecuteLog log) {
 		Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle("Delete Log");
 		builder.setMessage("Do you want to delete this log?\n"
-				+ log.getLogTime() + "\n"
-				+ log.getRemark());
+				+ log.getLogTime() + "\n" + log.getRemark());
 		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				Toast.makeText(getApplicationContext(), "log clicked!", Toast.LENGTH_SHORT).show();
+				ContentResolver contentResolver = getContentResolver();
+				contentResolver.delete(
+						Uri.withAppendedPath(ExecuteLogs.CONTENT_URI,
+								"/" + log.getID()), null, null);
 			}
 		});
 		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -229,15 +232,15 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 			public void onClick(DialogInterface dialog, int which) {
 			}
 		});
-		builder.create().show();		
+		builder.create().show();
 	}
-	
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
-		if ( parent.getId() == R.id.lst_cached_log ) {
+		if (parent.getId() == R.id.lst_cached_log) {
 			ExecuteLog log = (ExecuteLog) cached_adapter.getItem(position);
-			showDeleteCachedLogDialog(log);			
+			showDeleteCachedLogDialog(log);
 		}
 	}
 }
