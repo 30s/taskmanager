@@ -2,6 +2,7 @@ package com.indax.taskmanager;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.http.client.ClientProtocolException;
@@ -16,10 +17,15 @@ import android.app.AlertDialog.Builder;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,14 +49,22 @@ import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
 
 @TargetApi(11)
 public class ExecuteLogActivity extends Activity implements OnClickListener,
-		LoaderCallbacks<Cursor>, OnItemClickListener {
+		LoaderCallbacks<Cursor>, OnItemClickListener, SensorEventListener {
 
 	private static final int CACHED_LOG_LOADER = 0;
+	private static final float SHAKE_THRESHOLD = 3000;
 	private ITaskManagerAPI api_client;
 	private String task_guid;
 	private ExecuteLogListAdapter net_adapter;
 	private ExecuteLogListAdapter cached_adapter;
 	private EditText edit_log;
+	private long lastUpdate;
+	private float last_x;
+	private float last_y;
+	private float last_z;
+	private boolean acc_available;
+	private SensorManager sensor_manager;
+	private long lastShake;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +96,35 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 			new GetExecuteLogTask().execute(task_guid);
 		}
 
+		sensor_manager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+		List<Sensor> acc_sensors = sensor_manager
+				.getSensorList(Sensor.TYPE_ACCELEROMETER);
+		acc_available = acc_sensors.size() > 0;
+		if (acc_available) {
+			sensor_manager.registerListener(this,
+					sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+					SensorManager.SENSOR_DELAY_UI);
+		}
+
 		getLoaderManager().initLoader(CACHED_LOG_LOADER, null, this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (acc_available) {
+			sensor_manager.unregisterListener(this);
+		}
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		if (acc_available) {
+			sensor_manager.registerListener(this,
+					sensor_manager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER),
+					SensorManager.SENSOR_DELAY_UI);
+		}
 	}
 
 	@Override
@@ -252,8 +294,7 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 		return super.onMenuItemSelected(featureId, item);
 	}
 
-	private class PostCachedLogTask extends
-			AsyncTask<Object, Void, Integer> {
+	private class PostCachedLogTask extends AsyncTask<Object, Void, Integer> {
 
 		@Override
 		protected Integer doInBackground(Object... params) {
@@ -288,5 +329,38 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 			Toast.makeText(getApplicationContext(), result + " logs posted!",
 					Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+			long curTime = System.currentTimeMillis();
+			if ((curTime - lastUpdate) > 100) {
+				long diffTime = (curTime - lastUpdate);
+				lastUpdate = curTime;
+
+				float x = event.values[0];
+				float y = event.values[1];
+				float z = event.values[2];
+				float speed = Math.abs(x + y + z - last_x - last_y - last_z)
+						/ diffTime * 10000;
+
+				if ((speed > SHAKE_THRESHOLD) && (curTime - lastShake > 1000)) {
+					lastShake = curTime;
+					new PostCachedLogTask().execute(cached_adapter.getExecuteLogs());
+					Toast.makeText(this, "shake detected w/ speed: " + speed,
+							Toast.LENGTH_SHORT).show();
+				}
+				last_x = x;
+				last_y = y;
+				last_z = z;
+			}
+		}
+	}
+
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+		// TODO Auto-generated method stub
+
 	}
 }
