@@ -11,10 +11,13 @@ import org.json.JSONObject;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Loader;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -22,6 +25,8 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -37,7 +42,7 @@ import com.indax.taskmanager.utils.Utils;
 
 @TargetApi(11)
 public class ExecuteLogActivity extends Activity implements OnClickListener,
-		LoaderCallbacks<Cursor> {
+		LoaderCallbacks<Cursor>, OnItemClickListener {
 
 	private static final int CACHED_LOG_LOADER = 0;
 	private ITaskManagerAPI api_client;
@@ -58,10 +63,11 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 		ListView lst_cached_log = (ListView) findViewById(R.id.lst_cached_log);
 		cached_adapter = new ExecuteLogListAdapter();
 		lst_cached_log.setAdapter(cached_adapter);
+		lst_cached_log.setOnItemClickListener(this);
 
 		ListView lst_exec_log = (ListView) findViewById(R.id.lst_exec_log);
 		net_adapter = new ExecuteLogListAdapter();
-		lst_exec_log.setAdapter(net_adapter);
+		lst_exec_log.setAdapter(net_adapter);		
 
 		edit_log = (EditText) findViewById(R.id.edit_log);
 
@@ -204,5 +210,34 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		cached_adapter.load_cursor(null);
+	}
+
+	private void showDeleteCachedLogDialog(ExecuteLog log) {
+		Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle("Delete Log");
+		builder.setMessage("Do you want to delete this log?\n"
+				+ log.getLogTime() + "\n"
+				+ log.getRemark());
+		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				Toast.makeText(getApplicationContext(), "log clicked!", Toast.LENGTH_SHORT).show();
+			}
+		});
+		builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+			}
+		});
+		builder.create().show();		
+	}
+	
+	@Override
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		if ( parent.getId() == R.id.lst_cached_log ) {
+			ExecuteLog log = (ExecuteLog) cached_adapter.getItem(position);
+			showDeleteCachedLogDialog(log);			
+		}
 	}
 }

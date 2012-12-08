@@ -3,12 +3,6 @@ package com.indax.taskmanager.adapter;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.TimeZone;
-
-import com.indax.taskmanager.R;
-import com.indax.taskmanager.models.ExecuteLog;
-import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
-import com.indax.taskmanager.utils.Utils;
 
 import android.database.Cursor;
 import android.text.Html;
@@ -17,6 +11,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.indax.taskmanager.R;
+import com.indax.taskmanager.models.ExecuteLog;
+import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
+import com.indax.taskmanager.utils.Utils;
 
 public class ExecuteLogListAdapter extends BaseAdapter {
 
