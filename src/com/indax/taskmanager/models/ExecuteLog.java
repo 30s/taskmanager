@@ -10,6 +10,7 @@ import com.indax.taskmanager.providers.TaskContentProvider;
 
 public class ExecuteLog {
 	private long id;
+	private long log_timestamp;
 	private String logTime;
 	private String remark;
 	
@@ -20,6 +21,7 @@ public class ExecuteLog {
 	public ExecuteLog(JSONObject jsonObject) {
 		try {
 			this.id = -1;
+			log_timestamp = -1;
 			setLogTime(jsonObject.getString("log_time"));
 			setRemark(jsonObject.getString("remark"));
 		} catch (JSONException e) {
@@ -27,8 +29,9 @@ public class ExecuteLog {
 		}
 	}
 	
-	public ExecuteLog(long id, String log_time, String remark) {
+	public ExecuteLog(long id, long log_timestamp, String log_time, String remark) {
 		this.id = id;
+		this.log_timestamp = log_timestamp;
 		setLogTime(log_time);
 		setRemark(remark);
 	}
@@ -64,5 +67,9 @@ public class ExecuteLog {
 
 	public long getID() {
 		return id;
+	}
+	
+	public long getLogTimeStamp() {
+		return log_timestamp;
 	}
 }

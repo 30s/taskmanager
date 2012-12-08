@@ -24,6 +24,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -39,7 +40,6 @@ import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.ExecuteLog;
 import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
-import com.indax.taskmanager.utils.Utils;
 
 @TargetApi(11)
 public class ExecuteLogActivity extends Activity implements OnClickListener,
@@ -139,12 +139,10 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 			String log_time = params[0];
 			String remark = params[1];
 			try {
-				if (Utils.isNetworkAvailable(getApplicationContext())) {
-					JSONObject ret = api_client.executelog_insert(task_guid,
-							log_time, remark, null);
-					if (ret.has("status")) {
-						return true;
-					}
+				JSONObject ret = api_client.executelog_insert(task_guid,
+						log_time, remark, null);
+				if (ret.has("status")) {
+					return true;
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -241,6 +239,54 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 		if (parent.getId() == R.id.lst_cached_log) {
 			ExecuteLog log = (ExecuteLog) cached_adapter.getItem(position);
 			showDeleteCachedLogDialog(log);
+		}
+	}
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_sync:
+			new PostCachedLogTask().execute(cached_adapter.getExecuteLogs());
+			break;
+		}
+		return super.onMenuItemSelected(featureId, item);
+	}
+
+	private class PostCachedLogTask extends
+			AsyncTask<Object, Void, Integer> {
+
+		@Override
+		protected Integer doInBackground(Object... params) {
+			int posted = 0;
+			for (Object obj : params) {
+				ExecuteLog log = (ExecuteLog) obj;
+				JSONObject ret;
+				try {
+					ret = api_client.executelog_insert(task_guid,
+							log.getLogTimeStamp() + "", log.getRemark(), null);
+					if (ret.has("status")) {
+						ContentResolver contentResolver = getContentResolver();
+						contentResolver.delete(Uri.withAppendedPath(
+								ExecuteLogs.CONTENT_URI, "/" + log.getID()),
+								null, null);
+						posted++;
+					}
+				} catch (ClientProtocolException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+			}
+			return posted;
+		}
+
+		@Override
+		protected void onPostExecute(Integer result) {
+			super.onPostExecute(result);
+			Toast.makeText(getApplicationContext(), result + " logs posted!",
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 }

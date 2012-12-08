@@ -72,13 +72,17 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 		int idx_log_time = data.getColumnIndex(ExecuteLogs.LOG_TIME);
 		int idx_remark = data.getColumnIndex(ExecuteLogs.REMARK);
 		while (data.moveToNext()) {
-			Date log_time = Utils.getDateFromUTCTimeStamp(data
-					.getLong(idx_log_time));
-			ExecuteLog log = new ExecuteLog(data.getLong(idx_id), DateFormat
-					.getDateTimeInstance().format(log_time),
-					data.getString(idx_remark));
+			long log_timestamp = data.getLong(idx_log_time);
+			Date log_time = Utils.getDateFromUTCTimeStamp(log_timestamp);
+			ExecuteLog log = new ExecuteLog(data.getLong(idx_id),
+					log_timestamp, DateFormat.getDateTimeInstance().format(
+							log_time), data.getString(idx_remark));
 			execute_logs.add(log);
 		}
 		notifyDataSetChanged();
+	}
+	
+	public Object [] getExecuteLogs() {
+		return execute_logs.toArray();
 	}
 }

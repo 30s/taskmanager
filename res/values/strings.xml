@@ -17,5 +17,6 @@
     <string name="title_activity_execute_log">ExecuteLogActivity</string>
     <string name="hint_write_log">Write log...</string>
     <string name="btn_add_log">Add Log</string>
+    <string name="menu_sync">Sync</string>
 
 </resources>
