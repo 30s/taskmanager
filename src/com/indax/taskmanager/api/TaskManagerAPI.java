@@ -14,6 +14,7 @@ import com.indax.taskmanager.net.ApiRequest;
 import com.indax.taskmanager.net.ApiResponse;
 import com.indax.taskmanager.net.HttpEntityWithProgress.ProgressListener;
 import com.indax.taskmanager.utils.Preferences;
+import com.indax.taskmanager.utils.Utils;
 
 public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
@@ -35,6 +36,9 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	@Override
 	public ApiResponse execute(ApiRequest request, ProgressListener listener)
 			throws ClientProtocolException, IOException {
+		if ( !Utils.isNetworkAvailable(context) ) {
+			throw new IOException("Network not available!");
+		}
 		if (!request.getPath().equals("/v1/account/login/")) {
 			request.addHeader("AUTHORIZATION",
 					"Bearer " + Preferences.getToken(context));

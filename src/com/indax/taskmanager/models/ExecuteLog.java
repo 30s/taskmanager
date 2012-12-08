@@ -25,6 +25,11 @@ public class ExecuteLog {
 		}
 	}
 	
+	public ExecuteLog(String log_time, String remark) {
+		setLogTime(log_time);
+		setRemark(remark);
+	}
+
 	public static final class ExecuteLogs implements BaseColumns {
 		private ExecuteLogs() {
 		}

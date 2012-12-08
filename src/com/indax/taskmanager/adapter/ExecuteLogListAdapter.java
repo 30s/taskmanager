@@ -1,10 +1,16 @@
 package com.indax.taskmanager.adapter;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.TimeZone;
 
 import com.indax.taskmanager.R;
 import com.indax.taskmanager.models.ExecuteLog;
+import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
+import com.indax.taskmanager.utils.Utils;
 
+import android.database.Cursor;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +24,8 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 
 	public ExecuteLogListAdapter() {
 		this.execute_logs = new ArrayList<ExecuteLog>();
-	}		
-	
+	}
+
 	@Override
 	public int getCount() {
 		return execute_logs.size();
@@ -41,13 +47,15 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 			convertView = LayoutInflater.from(parent.getContext()).inflate(
 					R.layout.item_execute_log, null);
 		}
-		
+
 		ExecuteLog log = execute_logs.get(position);
-		TextView txt_log_time = (TextView) convertView.findViewById(R.id.txt_log_time);
-		TextView txt_remark = (TextView) convertView.findViewById(R.id.txt_remark);
+		TextView txt_log_time = (TextView) convertView
+				.findViewById(R.id.txt_log_time);
+		TextView txt_remark = (TextView) convertView
+				.findViewById(R.id.txt_remark);
 		txt_log_time.setText(log.getLogTime());
 		txt_remark.setText(Html.fromHtml(log.getRemark()));
-		
+
 		return convertView;
 	}
 
@@ -55,4 +63,21 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 		execute_logs.add(log);
 	}
 
+	public void load_cursor(Cursor data) {
+		execute_logs.clear();
+		if (data == null) {
+			return;
+		}
+
+		int idx_log_time = data.getColumnIndex(ExecuteLogs.LOG_TIME);
+		int idx_remark = data.getColumnIndex(ExecuteLogs.REMARK);
+		while (data.moveToNext()) {
+			Date log_time = Utils.getDateFromUTCTimeStamp(data
+					.getLong(idx_log_time));
+			ExecuteLog log = new ExecuteLog(DateFormat.getDateTimeInstance()
+					.format(log_time), data.getString(idx_remark));
+			execute_logs.add(log);
+		}
+		notifyDataSetChanged();
+	}
 }

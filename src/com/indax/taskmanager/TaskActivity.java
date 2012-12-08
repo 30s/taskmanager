@@ -237,7 +237,6 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, O
 							break;
 						} // endswitch
 					} // endfor 
-					findViewById(R.id.ll_progress).setVisibility(View.GONE);
 				} catch (JSONException e1) {
 					e1.printStackTrace();
 				}
@@ -254,6 +253,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, O
 					e.printStackTrace();
 				}
 			} // endif
+			findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		} // onPostExecute
 	} // SyncTask
 

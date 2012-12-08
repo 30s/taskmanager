@@ -75,20 +75,26 @@ public class TaskContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		SQLiteQueryBuilder queryBuilder = new SQLiteQueryBuilder();
-		queryBuilder.setTables(TASKS_TABLE_NAME);
-		queryBuilder.setProjectionMap(tasksProjectionMap);
+		SQLiteDatabase db = db_helper.getReadableDatabase();		
 		
 		switch ( URI_MATCHER.match(uri) ) {
 		case TASKS:
+			queryBuilder.setTables(TASKS_TABLE_NAME);
+			queryBuilder.setProjectionMap(tasksProjectionMap);
 			break;
 		case TASKS_ID:
-			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();
+			queryBuilder.setTables(TASKS_TABLE_NAME);
+			queryBuilder.setProjectionMap(tasksProjectionMap);
+			selection = selection + Tasks.ID + " = " + uri.getLastPathSegment();			
+			break;
+		case EXECUTELOGS:
+			queryBuilder.setTables(EXECUTELOG_TABLE_NAME);
+			queryBuilder.setProjectionMap(executelogsProjectionMap);
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		
-		SQLiteDatabase db = db_helper.getReadableDatabase();
 		Cursor cursor = queryBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 		cursor.setNotificationUri(getContext().getContentResolver(), uri);
 		return cursor;
