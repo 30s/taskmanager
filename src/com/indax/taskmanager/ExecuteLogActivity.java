@@ -11,16 +11,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
-import android.content.Loader;
 import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -29,6 +25,10 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,8 +48,8 @@ import com.indax.taskmanager.models.ExecuteLog;
 import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
 
 @TargetApi(11)
-public class ExecuteLogActivity extends Activity implements OnClickListener,
-		LoaderCallbacks<Cursor>, OnItemClickListener, SensorEventListener {
+public class ExecuteLogActivity extends FragmentActivity implements OnClickListener,
+		LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener, SensorEventListener {
 
 	private static final int CACHED_LOG_LOADER = 0;
 	private static final float SHAKE_THRESHOLD = 3000;
@@ -106,7 +106,7 @@ public class ExecuteLogActivity extends Activity implements OnClickListener,
 					SensorManager.SENSOR_DELAY_UI);
 		}
 
-		getLoaderManager().initLoader(CACHED_LOG_LOADER, null, this);
+		getSupportLoaderManager().initLoader(CACHED_LOG_LOADER, null, this);
 	}
 
 	@Override
