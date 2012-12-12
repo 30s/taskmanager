@@ -7,18 +7,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -33,8 +32,8 @@ import com.indax.taskmanager.models.Task;
 import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
 
-@TargetApi(11)
-public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, OnChildClickListener {
+
+public class TaskActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnChildClickListener {
 
 	// private final String TAG = TaskActivity.class.getSimpleName();
 	private TaskExpandableListAdapter task_adapter;
@@ -53,7 +52,7 @@ public class TaskActivity extends Activity implements LoaderCallbacks<Cursor>, O
 		lst_task.setAdapter(task_adapter);
 		lst_task.setOnChildClickListener(this);
 
-		getLoaderManager().initLoader(TASK_LOADER, null, this);
+		getSupportLoaderManager().initLoader(TASK_LOADER, null, this);
 
 		if (Preferences.getSyncTime(getApplicationContext()) == 0) {
 			// get all tasks
