@@ -10,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.ContentResolver;
@@ -25,12 +24,9 @@ import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -41,14 +37,17 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.indax.taskmanager.adapter.ExecuteLogListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.ExecuteLog;
 import com.indax.taskmanager.models.ExecuteLog.ExecuteLogs;
 
-@TargetApi(11)
-public class ExecuteLogActivity extends FragmentActivity implements OnClickListener,
+
+public class ExecuteLogActivity extends SherlockFragmentActivity implements OnClickListener,
 		LoaderManager.LoaderCallbacks<Cursor>, OnItemClickListener, SensorEventListener {
 
 	private static final int CACHED_LOG_LOADER = 0;
@@ -129,7 +128,7 @@ public class ExecuteLogActivity extends FragmentActivity implements OnClickListe
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_execute_log, menu);
+		getSupportMenuInflater().inflate(R.menu.activity_execute_log, menu);
 		return true;
 	}
 

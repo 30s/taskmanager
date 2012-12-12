@@ -4,5 +4,7 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry kind="lib" path="/home/ax003d/ws_android/taskmanager/libs/android-support-v4.jar"/>
+	<classpathentry kind="lib" path="/home/ax003d/ws_android/taskmanager/libs/httpmime-4.1.2.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

@@ -14,17 +14,17 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.Menu;
 import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.actionbarsherlock.app.SherlockFragmentActivity;
+import com.actionbarsherlock.view.Menu;
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
@@ -33,7 +33,7 @@ import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
 
 
-public class TaskActivity extends FragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnChildClickListener {
+public class TaskActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnChildClickListener {
 
 	// private final String TAG = TaskActivity.class.getSimpleName();
 	private TaskExpandableListAdapter task_adapter;
@@ -65,7 +65,7 @@ public class TaskActivity extends FragmentActivity implements LoaderManager.Load
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.activity_task, menu);
+		getSupportMenuInflater().inflate(R.menu.activity_task, menu);
 		return true;
 	}
 
