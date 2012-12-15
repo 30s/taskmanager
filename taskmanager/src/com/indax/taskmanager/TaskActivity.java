@@ -9,36 +9,41 @@ import org.json.JSONObject;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
-import android.view.View;
-import android.widget.ExpandableListView;
-import android.widget.ExpandableListView.OnChildClickListener;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.ActionBar.TabListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
+import com.indax.taskmanager.fragments.AllTasksFragment;
+import com.indax.taskmanager.fragments.RecentTasksFragment;
+import com.indax.taskmanager.fragments.StarredTasksFragment;
 import com.indax.taskmanager.models.Task;
 import com.indax.taskmanager.models.Task.Tasks;
 import com.indax.taskmanager.utils.Preferences;
 
 
-public class TaskActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnChildClickListener {
-
+public class TaskActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, TabListener {
 	// private final String TAG = TaskActivity.class.getSimpleName();
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
 	private ITaskManagerAPI api_client;
+	private StarredTasksFragment mStarred;
+	private AllTasksFragment mAll;
+	private RecentTasksFragment mRecent;
+	private static String[] tabs = new String[] {"All", "Star", "Recent"};;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -46,21 +51,25 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 		setContentView(R.layout.activity_task);
 
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
-
-		ExpandableListView lst_task = (ExpandableListView) findViewById(R.id.lst_task);
 		task_adapter = new TaskExpandableListAdapter();
-		lst_task.setAdapter(task_adapter);
-		lst_task.setOnChildClickListener(this);
-
+		
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS); 
+        for (int i = 0; i < tabs.length; i++) {
+            ActionBar.Tab tab = getSupportActionBar().newTab();
+            tab.setText(tabs[i]);
+            tab.setTabListener(this);
+            getSupportActionBar().addTab(tab);
+        }
+		
 		getSupportLoaderManager().initLoader(TASK_LOADER, null, this);
-
+		
 		if (Preferences.getSyncTime(getApplicationContext()) == 0) {
 			// get all tasks
 			new GetTask().execute();
 		} else {
 			// sync
 			new SyncTask().execute();
-		}
+		}				
 	}
 
 	@Override
@@ -93,9 +102,9 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
-			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
-			txt_loading.setText("Loading...");
+//			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
+//			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
+//			txt_loading.setText("Loading...");
 		}
 
 		@Override
@@ -118,7 +127,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 						contentResolver.insert(Tasks.CONTENT_URI, values);
 					}
 					Preferences.setSyncTime(getApplicationContext());
-					findViewById(R.id.ll_progress).setVisibility(View.GONE);
+					// findViewById(R.id.ll_progress).setVisibility(View.GONE);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -161,9 +170,9 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
-			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
-			txt_loading.setText("Syncing...");
+//			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
+//			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
+//			txt_loading.setText("Syncing...");
 		}
 
 		@Override
@@ -252,7 +261,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 					e.printStackTrace();
 				}
 			} // endif
-			findViewById(R.id.ll_progress).setVisibility(View.GONE);
+			// findViewById(R.id.ll_progress).setVisibility(View.GONE);
 		} // onPostExecute
 	} // SyncTask
 
@@ -312,14 +321,35 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 	}
 
 	@Override
-	public boolean onChildClick(ExpandableListView parent, View v,
-			int groupPosition, int childPosition, long id) {	
-		Task task = task_adapter.getChild(groupPosition, childPosition);
-		Intent intent = new Intent(getApplicationContext(), ExecuteLogActivity.class);
-		intent.putExtra("task_name", task.getName());
-		intent.putExtra("task_guid", task.getGuid() + "");
-		startActivity(intent);
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		if ( tab.getText().equals("All") ) {
+			if ( mAll == null ) {
+				mAll = new AllTasksFragment();
+				mAll.setTaskAdapter(task_adapter);
+			}
+			ft.replace(R.id.frag_container, mAll);
+		} else if ( tab.getText().equals("Star") ) {
+			if ( mStarred == null ) {
+				mStarred = new StarredTasksFragment();	
+			}
+			ft.replace(R.id.frag_container, mStarred);
+		} else if ( tab.getText().equals("Recent") ) {
+			if ( mRecent == null ) {
+				mRecent = new RecentTasksFragment();
+			}
+			ft.replace(R.id.frag_container, mRecent);
+		}
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+		// TODO Auto-generated method stub
 		
-		return false;
+	}
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		// TODO Auto-generated method stub
+		
 	}
 }

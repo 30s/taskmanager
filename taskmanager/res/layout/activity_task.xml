@@ -3,34 +3,21 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
+    <FrameLayout android:id="@+id/frag_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
-
-    <LinearLayout android:id="@+id/ll_progress"
+        android:layout_height="match_parent"/>
+    
+<!--     <fragment
+        android:id="@+id/frag_all_tasks"
+        android:name="com.indax.taskmanager.fragments.AllTasksFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="gone" >
+        android:layout_height="match_parent" /> -->
 
-        <ProgressBar
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:indeterminate="true"
-            android:indeterminateBehavior="cycle" />
-
-        <TextView
-            android:id="@+id/txt_loading"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="8dp"
-            android:text="@string/loading" />
-    </LinearLayout>
-
-    <ExpandableListView
-        android:id="@+id/lst_task"
+    <!--
+         <fragment android:name="com.indax.taskmanager.fragments.StarredTasksFragment"
+        android:id="@+id/frag_starred_tasks"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ExpandableListView>
+        android:layout_height="match_parent" />
+    -->
 
 </LinearLayout>
