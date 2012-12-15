@@ -36,14 +36,21 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	@Override
 	public ApiResponse execute(ApiRequest request, ProgressListener listener)
 			throws ClientProtocolException, IOException {
-		if ( !Utils.isNetworkAvailable(context) ) {
+		if (!Utils.isNetworkAvailable(context)) {
 			throw new IOException("Network not available!");
 		}
+		
 		if (!request.getPath().equals("/v1/account/login/")) {
 			request.addHeader("AUTHORIZATION",
 					"Bearer " + Preferences.getToken(context));
 		}
-		return super.execute(request, listener);
+		
+		ApiResponse response = super.execute(request, listener);		
+		if (response.getStatusCode() == 401) {
+			Preferences.expireToken(context);
+		}
+		
+		return response;
 	}
 
 	@Override
@@ -75,9 +82,10 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	@Override
 	public JSONObject oplog(String next, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException {
-		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+		ApiRequest request = new ApiRequest(ApiRequest.GET,
 				next == null ? "/v1/oplog/" : next);
-		request.addParameter("timestamp__gt", Preferences.getSyncTime(context) + "");
+		request.addParameter("timestamp__gt", Preferences.getSyncTime(context)
+				+ "");
 
 		ApiResponse response = execute(request, progressListener);
 
@@ -88,7 +96,7 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	public JSONObject executelog(String next, String task_guid,
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException {
-		ApiRequest request = new ApiRequest(ApiRequest.GET, 
+		ApiRequest request = new ApiRequest(ApiRequest.GET,
 				next == null ? "/v1/executelog/" : next);
 		request.addParameter("task__exact", task_guid);
 
@@ -101,7 +109,7 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 	public JSONObject executelog_insert(String task_guid, String log_time,
 			String remark, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException {
-		
+
 		ApiRequest request = new ApiRequest(ApiRequest.POST,
 				"/v1/executelog/insert/");
 		request.addParameter("task", task_guid);
