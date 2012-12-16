@@ -10,6 +10,7 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -38,6 +39,22 @@
         <activity
             android:name=".ExecuteLogActivity"
             android:label="@string/title_activity_execute_log" >
+        </activity>
+        <activity
+            android:name=".ContactActivity"
+            android:label="@string/title_activity_contact" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data
+                    android:host="contacts"
+                    android:mimeType="vnd.android.cursor.item/person" />
+                <data
+                    android:host="com.android.contacts"
+                    android:mimeType="vnd.android.cursor.item/contact" />
+            </intent-filter>
         </activity>
     </application>
 

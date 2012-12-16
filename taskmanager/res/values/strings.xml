@@ -18,5 +18,6 @@
     <string name="hint_write_log">Write log...</string>
     <string name="btn_add_log">Add Log</string>
     <string name="menu_sync">Sync</string>
+    <string name="title_activity_contact">ContactActivity</string>
 
 </resources>
