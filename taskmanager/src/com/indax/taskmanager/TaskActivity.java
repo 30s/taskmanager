@@ -24,6 +24,7 @@ import com.actionbarsherlock.app.ActionBar.Tab;
 import com.actionbarsherlock.app.ActionBar.TabListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.Window;
 import com.indax.taskmanager.adapter.TaskExpandableListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
@@ -48,6 +49,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_task);
 
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
@@ -59,8 +61,8 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
             tab.setText(tabs[i]);
             tab.setTabListener(this);
             getSupportActionBar().addTab(tab);
-        }
-		
+        }	
+        
 		getSupportLoaderManager().initLoader(TASK_LOADER, null, this);
 		
 		if (Preferences.getSyncTime(getApplicationContext()) == 0) {
@@ -102,9 +104,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-//			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
-//			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
-//			txt_loading.setText("Loading...");
+			setSupportProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
@@ -127,7 +127,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 						contentResolver.insert(Tasks.CONTENT_URI, values);
 					}
 					Preferences.setSyncTime(getApplicationContext());
-					// findViewById(R.id.ll_progress).setVisibility(View.GONE);
+					setSupportProgressBarIndeterminateVisibility(false);
 				} catch (JSONException e) {
 					e.printStackTrace();
 				}
@@ -170,9 +170,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-//			findViewById(R.id.ll_progress).setVisibility(View.VISIBLE);
-//			TextView txt_loading = (TextView) findViewById(R.id.txt_loading);
-//			txt_loading.setText("Syncing...");
+			setSupportProgressBarIndeterminateVisibility(true);
 		}
 
 		@Override
@@ -261,7 +259,7 @@ public class TaskActivity extends SherlockFragmentActivity implements LoaderMana
 					e.printStackTrace();
 				}
 			} // endif
-			// findViewById(R.id.ll_progress).setVisibility(View.GONE);
+			setSupportProgressBarIndeterminateVisibility(false);
 		} // onPostExecute
 	} // SyncTask
 
