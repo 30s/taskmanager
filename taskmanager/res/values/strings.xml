@@ -15,9 +15,15 @@
     <string name="title_activity_task">TaskActivity</string>
     <string name="loading">Loading</string>
     <string name="title_activity_execute_log">ExecuteLogActivity</string>
-    <string name="hint_write_log">Write log...</string>
+    <string name="hint_write_log">Write log…</string>
     <string name="btn_add_log">Add Log</string>
     <string name="menu_sync">Sync</string>
+    <string name="menu_log">Log</string>
     <string name="title_activity_contact">ContactActivity</string>
+    <string name="title_activity_event">EventActivity</string>
+    <string name="hint_persons">Persons</string>
+    <string name="hint_location">Location</string>
+    <string name="hint_event">Event</string>
+    <string name="btn_save">Save</string>
 
 </resources>

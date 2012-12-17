@@ -56,6 +56,10 @@
                     android:mimeType="vnd.android.cursor.item/contact" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".EventActivity"
+            android:label="@string/title_activity_event" >
+        </activity>
     </application>
 
 </manifest>

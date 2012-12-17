@@ -133,4 +133,20 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+
+	@Override
+	public JSONObject event_insert(String datetime, String location,
+			String persons, String event, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException {
+		ApiRequest request = new ApiRequest(ApiRequest.POST,
+				"/v1/event/insert/");
+		request.addParameter("datetime", datetime);
+		request.addParameter("location", location);
+		request.addParameter("persons", persons);
+		request.addParameter("event", event);
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }

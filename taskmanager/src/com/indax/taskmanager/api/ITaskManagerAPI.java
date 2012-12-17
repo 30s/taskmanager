@@ -30,4 +30,8 @@ public interface ITaskManagerAPI {
 	JSONObject event(String next, String contact,
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException;
+	
+	JSONObject event_insert(String datetime, String location,
+			String persons, String event, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException;	
 }

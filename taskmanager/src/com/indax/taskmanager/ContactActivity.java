@@ -7,6 +7,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,8 +20,10 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.actionbarsherlock.ActionBarSherlock.OnMenuItemSelectedListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuItem;
 import com.actionbarsherlock.view.Window;
 import com.indax.taskmanager.adapter.EventListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
@@ -28,7 +31,7 @@ import com.indax.taskmanager.api.TaskManagerAPI;
 import com.indax.taskmanager.models.Event;
 
 public class ContactActivity extends SherlockFragmentActivity implements
-		LoaderManager.LoaderCallbacks<Cursor> {
+		LoaderManager.LoaderCallbacks<Cursor>, OnMenuItemSelectedListener {
 
 	private static final int CONTACT_LOADER = 0;
 	private Uri mContactURL;
@@ -146,4 +149,16 @@ public class ContactActivity extends SherlockFragmentActivity implements
 //			}
 		} // onPostExecutemContact
 	} // GetEvent	
+
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_log:
+			Intent intent = new Intent(getApplicationContext(), EventActivity.class);
+			intent.putExtra("contact", mContact);
+			startActivity(intent);
+			break;
+		}
+		return super.onMenuItemSelected(featureId, item);
+	}
 }
