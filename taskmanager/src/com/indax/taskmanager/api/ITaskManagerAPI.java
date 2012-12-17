@@ -22,8 +22,12 @@ public interface ITaskManagerAPI {
 	JSONObject executelog(String next, String task_guid,
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException;
-	
-	JSONObject executelog_insert(String task_guid, String log_time, String remark, 
+
+	JSONObject executelog_insert(String task_guid, String log_time,
+			String remark, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException;
+
+	JSONObject event(String next, String contact,
 			ProgressListener progressListener) throws ClientProtocolException,
-			IOException, JSONException;	
+			IOException, JSONException;
 }
