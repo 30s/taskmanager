@@ -35,6 +35,9 @@ public interface ITaskManagerAPI {
 			String event, ProgressListener progressListener)
 			throws ClientProtocolException, IOException, JSONException;
 
+	JSONObject contact(String name, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException;
+
 	JSONObject contact_insert(String name, String name_en,
 			ProgressListener progressListener) throws ClientProtocolException,
 			IOException, JSONException;

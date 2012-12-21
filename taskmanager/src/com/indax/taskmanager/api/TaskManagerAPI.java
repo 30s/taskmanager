@@ -166,4 +166,16 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+
+	@Override
+	public JSONObject contact(String name, ProgressListener progressListener)
+			throws ClientProtocolException, IOException, JSONException {
+		ApiRequest request = new ApiRequest(ApiRequest.GET,
+				"/v1/contact/");
+		request.addParameter("name__exact", name);
+
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }
