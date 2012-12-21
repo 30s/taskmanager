@@ -8,5 +8,17 @@
         android:id="@+id/txt_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+    
+    <EditText 
+        android:id="@+id/edit_name_en"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/hint_edit_name_en"/>
 
+    <Button 
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/btn_save"/>
+    
 </LinearLayout>

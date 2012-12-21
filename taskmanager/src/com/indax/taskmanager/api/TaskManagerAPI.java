@@ -149,4 +149,21 @@ public class TaskManagerAPI extends ApiBase implements ITaskManagerAPI {
 
 		return new JSONObject(response.getContentAsString());
 	}
+
+	@Override
+	public JSONObject contact_insert(String name, String name_en,
+			ProgressListener progressListener) throws ClientProtocolException,
+			IOException, JSONException {
+ 
+		ApiRequest request = new ApiRequest(ApiRequest.POST,
+				"/v1/contact/insert/");
+		request.addParameter("name", name);
+		if (name_en != null) {
+			request.addParameter("name_en", name_en);
+		}
+		
+		ApiResponse response = execute(request, progressListener);
+
+		return new JSONObject(response.getContentAsString());
+	}
 }

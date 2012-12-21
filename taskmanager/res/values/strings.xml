@@ -25,5 +25,6 @@
     <string name="hint_location">Location</string>
     <string name="hint_event">Event</string>
     <string name="btn_save">Save</string>
+    <string name="hint_edit_name_en">English name</string>
 
 </resources>

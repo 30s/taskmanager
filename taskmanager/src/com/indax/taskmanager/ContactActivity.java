@@ -35,14 +35,15 @@ import com.indax.taskmanager.fragments.EventFragment;
 import com.indax.taskmanager.models.Event;
 
 public class ContactActivity extends SherlockFragmentActivity implements
-		LoaderManager.LoaderCallbacks<Cursor>, OnMenuItemSelectedListener, TabListener {
+		LoaderManager.LoaderCallbacks<Cursor>, OnMenuItemSelectedListener,
+		TabListener {
 
 	private static final int CONTACT_LOADER = 0;
 	private Uri mContactURL;
 	private EventListAdapter event_adapter;
 	private ITaskManagerAPI api_client;
 	private String mContact;
-	private final String[] tabs = {"Contact", "Events"};
+	private final String[] tabs = { "Contact", "Events" };
 	private ContactFragment mFragContact;
 	private EventFragment mFragEvent;
 
@@ -51,17 +52,17 @@ public class ContactActivity extends SherlockFragmentActivity implements
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_contact);
-		
-        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS); 
-        for (int i = 0; i < tabs.length; i++) {
-            ActionBar.Tab tab = getSupportActionBar().newTab();
-            tab.setText(tabs[i]);
-            tab.setTabListener(this);
-            getSupportActionBar().addTab(tab);
-        }
-		
+
+		getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+		for (int i = 0; i < tabs.length; i++) {
+			ActionBar.Tab tab = getSupportActionBar().newTab();
+			tab.setText(tabs[i]);
+			tab.setTabListener(this);
+			getSupportActionBar().addTab(tab);
+		}
+
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
-		event_adapter = new EventListAdapter();		
+		event_adapter = new EventListAdapter();
 		mContactURL = getIntent().getData();
 
 		getSupportLoaderManager().initLoader(CONTACT_LOADER, null, this);
@@ -89,7 +90,7 @@ public class ContactActivity extends SherlockFragmentActivity implements
 					.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
 			String display_name = cursor.getString(idx_display_name);
 			mContact = display_name;
-			if ( mFragContact != null ) {
+			if (mFragContact != null) {
 				mFragContact.setContact(mContact);
 			}
 			new GetEvent().execute(mContact);
@@ -99,7 +100,7 @@ public class ContactActivity extends SherlockFragmentActivity implements
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 	}
-	
+
 	private class GetEvent extends AsyncTask<String, LinearLayout, JSONObject> {
 
 		@Override
@@ -146,25 +147,26 @@ public class ContactActivity extends SherlockFragmentActivity implements
 				}
 			}
 
-//			if (result != null && result.has("meta")) {
-//				String next;
-//				try {
-//					next = result.getJSONObject("meta").getString("next");
-//					if (!next.equals("null")) {
-//						new GetEvent().execute(next, mContact);
-//					}
-//				} catch (JSONException e) {
-//					e.printStackTrace();
-//				}
-//			}
+			// if (result != null && result.has("meta")) {
+			// String next;
+			// try {
+			// next = result.getJSONObject("meta").getString("next");
+			// if (!next.equals("null")) {
+			// new GetEvent().execute(next, mContact);
+			// }
+			// } catch (JSONException e) {
+			// e.printStackTrace();
+			// }
+			// }
 		} // onPostExecutemContact
-	} // GetEvent	
+	} // GetEvent
 
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
 		switch (item.getItemId()) {
 		case R.id.menu_log:
-			Intent intent = new Intent(getApplicationContext(), EventActivity.class);
+			Intent intent = new Intent(getApplicationContext(),
+					EventActivity.class);
 			intent.putExtra("contact", mContact);
 			startActivity(intent);
 			break;
@@ -174,17 +176,17 @@ public class ContactActivity extends SherlockFragmentActivity implements
 
 	@Override
 	public void onTabSelected(Tab tab, FragmentTransaction ft) {
-		if ( tab.getText().equals("Contact") ) {
-			if ( mFragContact == null ) {
+		if (tab.getText().equals("Contact")) {
+			if (mFragContact == null) {
 				mFragContact = new ContactFragment();
 			}
 			ft.replace(R.id.frag_container, mFragContact);
-		} else if ( tab.getText().equals("Events") ) {
-			if ( mFragEvent == null ) {
+		} else if (tab.getText().equals("Events")) {
+			if (mFragEvent == null) {
 				mFragEvent = new EventFragment();
 				mFragEvent.setEventAdapter(event_adapter);
 			}
-			ft.replace(R.id.frag_container, mFragEvent);			
+			ft.replace(R.id.frag_container, mFragEvent);
 		}
 	}
 
