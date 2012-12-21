@@ -13,14 +13,16 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import com.actionbarsherlock.ActionBarSherlock.OnMenuItemSelectedListener;
+import com.actionbarsherlock.app.ActionBar;
+import com.actionbarsherlock.app.ActionBar.Tab;
+import com.actionbarsherlock.app.ActionBar.TabListener;
 import com.actionbarsherlock.app.SherlockFragmentActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuItem;
@@ -28,31 +30,38 @@ import com.actionbarsherlock.view.Window;
 import com.indax.taskmanager.adapter.EventListAdapter;
 import com.indax.taskmanager.api.ITaskManagerAPI;
 import com.indax.taskmanager.api.TaskManagerAPI;
+import com.indax.taskmanager.fragments.ContactFragment;
+import com.indax.taskmanager.fragments.EventFragment;
 import com.indax.taskmanager.models.Event;
 
 public class ContactActivity extends SherlockFragmentActivity implements
-		LoaderManager.LoaderCallbacks<Cursor>, OnMenuItemSelectedListener {
+		LoaderManager.LoaderCallbacks<Cursor>, OnMenuItemSelectedListener, TabListener {
 
 	private static final int CONTACT_LOADER = 0;
 	private Uri mContactURL;
-	private TextView txt_name;
 	private EventListAdapter event_adapter;
 	private ITaskManagerAPI api_client;
 	private String mContact;
+	private final String[] tabs = {"Contact", "Events"};
+	private ContactFragment mFragContact;
+	private EventFragment mFragEvent;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 		setContentView(R.layout.activity_contact);
-
+		
+        getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS); 
+        for (int i = 0; i < tabs.length; i++) {
+            ActionBar.Tab tab = getSupportActionBar().newTab();
+            tab.setText(tabs[i]);
+            tab.setTabListener(this);
+            getSupportActionBar().addTab(tab);
+        }
+		
 		api_client = TaskManagerAPI.getInstance(getApplicationContext());
-		
-		ListView lst_events = (ListView) findViewById(R.id.lst_events);
-		event_adapter = new EventListAdapter();
-		lst_events.setAdapter(event_adapter);		
-		
-		txt_name = (TextView) findViewById(R.id.txt_name);
+		event_adapter = new EventListAdapter();		
 		mContactURL = getIntent().getData();
 
 		getSupportLoaderManager().initLoader(CONTACT_LOADER, null, this);
@@ -79,15 +88,16 @@ public class ContactActivity extends SherlockFragmentActivity implements
 			int idx_display_name = cursor
 					.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME);
 			String display_name = cursor.getString(idx_display_name);
-			txt_name.setText(display_name);
 			mContact = display_name;
+			if ( mFragContact != null ) {
+				mFragContact.setContact(mContact);
+			}
 			new GetEvent().execute(mContact);
 		}
 	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		// TODO Auto-generated method stub
 	}
 	
 	private class GetEvent extends AsyncTask<String, LinearLayout, JSONObject> {
@@ -160,5 +170,29 @@ public class ContactActivity extends SherlockFragmentActivity implements
 			break;
 		}
 		return super.onMenuItemSelected(featureId, item);
+	}
+
+	@Override
+	public void onTabSelected(Tab tab, FragmentTransaction ft) {
+		if ( tab.getText().equals("Contact") ) {
+			if ( mFragContact == null ) {
+				mFragContact = new ContactFragment();
+			}
+			ft.replace(R.id.frag_container, mFragContact);
+		} else if ( tab.getText().equals("Events") ) {
+			if ( mFragEvent == null ) {
+				mFragEvent = new EventFragment();
+				mFragEvent.setEventAdapter(event_adapter);
+			}
+			ft.replace(R.id.frag_container, mFragEvent);			
+		}
+	}
+
+	@Override
+	public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+	}
+
+	@Override
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
 	}
 }

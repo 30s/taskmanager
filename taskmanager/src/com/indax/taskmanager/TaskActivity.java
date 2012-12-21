@@ -37,7 +37,7 @@ import com.indax.taskmanager.utils.Preferences;
 
 
 public class TaskActivity extends SherlockFragmentActivity implements LoaderManager.LoaderCallbacks<Cursor>, TabListener {
-	// private final String TAG = TaskActivity.class.getSimpleName();
+
 	private TaskExpandableListAdapter task_adapter;
 	private static int TASK_LOADER = 0;
 	private ITaskManagerAPI api_client;
