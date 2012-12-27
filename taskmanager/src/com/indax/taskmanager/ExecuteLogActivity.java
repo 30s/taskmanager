@@ -172,18 +172,21 @@ public class ExecuteLogActivity extends SherlockFragmentActivity implements OnCl
 		}
 	}
 
-	private class PostOrCacheLogTask extends AsyncTask<String, Void, Boolean> {
+	private class PostOrCacheLogTask extends AsyncTask<String, Void, ExecuteLog> {
 
 		@Override
-		protected Boolean doInBackground(String... params) {
+		protected ExecuteLog doInBackground(String... params) {
 			assert (params.length == 2);
 			String log_time = params[0];
 			String remark = params[1];
 			try {
 				JSONObject ret = api_client.executelog_insert(task_guid,
 						log_time, remark, null);
+				if (ret.has("id")) {
+					return new ExecuteLog(ret);
+				}
 				if (ret.has("status")) {
-					return true;
+					return null;
 				}
 			} catch (ClientProtocolException e) {
 				e.printStackTrace();
@@ -200,15 +203,18 @@ public class ExecuteLogActivity extends SherlockFragmentActivity implements OnCl
 			values.put(ExecuteLogs.REMARK, remark);
 			contentResolver.insert(ExecuteLogs.CONTENT_URI, values);
 
-			return false;
+			return null;
 		}
 
 		@Override
-		protected void onPostExecute(Boolean result) {
+		protected void onPostExecute(ExecuteLog result) {
 			super.onPostExecute(result);
-			if (result) {
-				Toast.makeText(getApplicationContext(), "Execute log post OK!",
-						Toast.LENGTH_SHORT).show();
+			edit_log.setText("");
+			if (result != null) {
+				net_adapter.prependExecuteLog(result);
+				net_adapter.notifyDataSetChanged();
+				Toast.makeText(getApplicationContext(), "Execute log posted!",
+						Toast.LENGTH_SHORT).show();				
 			} else {
 				Toast.makeText(getApplicationContext(), "Execute log saved!",
 						Toast.LENGTH_SHORT).show();

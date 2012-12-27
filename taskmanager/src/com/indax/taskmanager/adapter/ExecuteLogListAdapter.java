@@ -61,6 +61,10 @@ public class ExecuteLogListAdapter extends BaseAdapter {
 	public void addExecuteLog(ExecuteLog log) {
 		execute_logs.add(log);
 	}
+	
+	public void prependExecuteLog(ExecuteLog log) {
+		execute_logs.add(0, log);
+	}
 
 	public void load_cursor(Cursor data) {
 		execute_logs.clear();
